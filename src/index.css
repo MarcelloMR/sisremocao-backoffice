@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+/*
+  Design system "Pró Coração" — Opção 2.
+  Tokens de cor exatos definidos como variáveis do tema Tailwind (@theme),
+  disponíveis como utilitários: bg-chumbo, text-vermelho, border-azul-petroleo etc.
+*/
+@theme {
+  --font-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  --color-chumbo: #2b303a;
+  --color-vermelho: #d9251b;
+  --color-azul-petroleo: #557a82;
+  --color-bg-app: #f3f5f7;
+  --color-bg-card: #ffffff;
+  --color-text-principal: #1e2229;
+  --color-text-secundario: #8a94a6;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg-app);
+  color: var(--color-text-principal);
+  font-family: var(--font-sans);
+}
