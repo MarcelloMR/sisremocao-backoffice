@@ -16,7 +16,8 @@ export function Home() {
       <div>
         <h1 className="text-2xl font-bold text-chumbo">Visão Geral</h1>
         <p className="mt-1 text-sm text-text-secundario">
-          Bem-vindo(a), {sessao.usuario.email} · papel <span className="font-medium text-text-principal">{sessao.usuario.papel}</span>
+          Bem-vindo(a), {sessao.usuario.email} · papéis{' '}
+          <span className="font-medium text-text-principal">{sessao.usuario.papeis.join(', ')}</span>
         </p>
       </div>
 

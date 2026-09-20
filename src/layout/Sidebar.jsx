@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import { ITENS_NAVEGACAO } from './navegacao.js';
+import { itensNavegacao } from './navegacao.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import icone from '../assets/logo/icone-256.png';
 
 const LINK_CLASSES_BASE = 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors';
@@ -45,6 +46,9 @@ function ItemComSubmenu({ rotulo, Icone, subitens }) {
 }
 
 export function Sidebar() {
+  const { sessao } = useAuth();
+  const itens = itensNavegacao(sessao?.usuario?.papeis);
+
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col overflow-y-auto bg-chumbo">
       <div className="flex items-center gap-3 px-6 py-6">
@@ -58,7 +62,7 @@ export function Sidebar() {
       </div>
 
       <nav className="mt-4 flex flex-col gap-1 px-3">
-        {ITENS_NAVEGACAO.map((item) =>
+        {itens.map((item) =>
           item.subitens ? (
             <ItemComSubmenu key={item.rotulo} {...item} />
           ) : (

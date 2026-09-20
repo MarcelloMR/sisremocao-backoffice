@@ -1,8 +1,19 @@
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { requisitar } from '../api/client.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import { AlocarEquipeAmbulanciaFormulario } from '../components/AlocarEquipeAmbulanciaFormulario.jsx';
 
 export function AlocarRemocao() {
   const { codigo } = useParams();
+  const { sessao } = useAuth();
+  const [remocao, setRemocao] = useState(null);
+
+  useEffect(() => {
+    requisitar(`/remocao/${codigo}`, { token: sessao.token })
+      .then(setRemocao)
+      .catch(() => setRemocao(undefined));
+  }, [codigo, sessao.token]);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -13,7 +24,9 @@ export function AlocarRemocao() {
         </p>
       </div>
 
-      <AlocarEquipeAmbulanciaFormulario remocaoId={codigo} />
+      {remocao !== null && (
+        <AlocarEquipeAmbulanciaFormulario remocaoId={codigo} tipoAmbulanciaDemandadaAtual={remocao?.tipoAmbulanciaDemandada} />
+      )}
     </div>
   );
 }

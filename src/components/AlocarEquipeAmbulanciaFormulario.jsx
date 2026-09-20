@@ -3,14 +3,18 @@ import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Campo, Secao, CAMPO_CLASSES } from './CampoFormulario.jsx';
 
+const TIPOS_AMBULANCIA_DEMANDADA = ['Basica', 'UTI'];
+
 // props:
 // - remocaoId: código da remoção sendo alocada
+// - tipoAmbulanciaDemandadaAtual: valor já salvo na remoção (para pré-selecionar o campo)
 // - aoSucesso(resultado): callback opcional
-export function AlocarEquipeAmbulanciaFormulario({ remocaoId, aoSucesso }) {
+export function AlocarEquipeAmbulanciaFormulario({ remocaoId, tipoAmbulanciaDemandadaAtual, aoSucesso }) {
   const { sessao } = useAuth();
   const [ambulancias, setAmbulancias] = useState([]);
   const [profissionais, setProfissionais] = useState([]);
   const [ambulanciaCodigo, setAmbulanciaCodigo] = useState('');
+  const [tipoAmbulanciaDemandada, setTipoAmbulanciaDemandada] = useState(tipoAmbulanciaDemandadaAtual || '');
   const [equipeSelecionada, setEquipeSelecionada] = useState([]);
   const [confirmarConflito, setConfirmarConflito] = useState(false);
   const [conflitos, setConflitos] = useState(null);
@@ -44,6 +48,7 @@ export function AlocarEquipeAmbulanciaFormulario({ remocaoId, aoSucesso }) {
         ambulancia: { codigo: Number(ambulanciaCodigo) },
         equipe: equipeSelecionada.map((codigo) => ({ codigo })),
         ignorarConflitosDisponibilidade: confirmarConflito,
+        ...(tipoAmbulanciaDemandada ? { tipoAmbulanciaDemandada } : {}),
       };
       const resultado = await requisitar(`/remocao/${remocaoId}`, { method: 'PUT', body: payload, token: sessao.token });
       setSucesso(resultado);
@@ -63,6 +68,20 @@ export function AlocarEquipeAmbulanciaFormulario({ remocaoId, aoSucesso }) {
   return (
     <form className="flex flex-col gap-6" onSubmit={enviar}>
       <Secao titulo="Ambulância">
+        <Campo rotulo="Tipo de ambulância">
+          <select
+            value={tipoAmbulanciaDemandada}
+            onChange={(e) => setTipoAmbulanciaDemandada(e.target.value)}
+            className={CAMPO_CLASSES}
+          >
+            <option value="">Não definido</option>
+            {TIPOS_AMBULANCIA_DEMANDADA.map((tipo) => (
+              <option key={tipo} value={tipo}>
+                {tipo === 'UTI' ? 'UTI' : 'Básica'}
+              </option>
+            ))}
+          </select>
+        </Campo>
         <Campo rotulo="Ambulância disponível" obrigatorio>
           <select value={ambulanciaCodigo} onChange={(e) => setAmbulanciaCodigo(e.target.value)} required className={CAMPO_CLASSES}>
             <option value="">Selecione</option>

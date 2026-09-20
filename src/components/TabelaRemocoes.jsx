@@ -8,10 +8,13 @@ const STATUS_REMOCAO = ['Solicitada', 'Em_Andamento', 'Realizada', 'Aguardando_P
 
 // props:
 // - comFiltros: mostra campo de busca por status acima da tabela
+// - comFiltroPeriodo: mostra campos de data início/fim (filtra por dataHoraSolicitacao)
 // - mostrarAlocar: mostra ação "Alocar equipe/ambulância" por linha (uso interno/Admin)
-export function TabelaRemocoes({ comFiltros = true, mostrarAlocar = false }) {
+export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mostrarAlocar = false }) {
   const { sessao } = useAuth();
   const [status, setStatus] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
   const [remocoes, setRemocoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
@@ -22,6 +25,8 @@ export function TabelaRemocoes({ comFiltros = true, mostrarAlocar = false }) {
     try {
       const parametros = new URLSearchParams();
       if (status) parametros.set('status', status);
+      if (dataInicio) parametros.set('dataInicio', dataInicio);
+      if (dataFim) parametros.set('dataFim', dataFim);
       const resposta = await requisitar(`/remocao?${parametros.toString()}`, { token: sessao.token });
       setRemocoes(resposta);
     } catch (excecao) {
@@ -38,7 +43,7 @@ export function TabelaRemocoes({ comFiltros = true, mostrarAlocar = false }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {comFiltros && (
+      {(comFiltros || comFiltroPeriodo) && (
         <form
           onSubmit={(evento) => {
             evento.preventDefault();
@@ -46,17 +51,32 @@ export function TabelaRemocoes({ comFiltros = true, mostrarAlocar = false }) {
           }}
           className="flex flex-wrap items-end gap-3 rounded-xl bg-bg-card p-4 shadow-sm"
         >
-          <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
-            Status
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className={CAMPO_CLASSES}>
-              <option value="">Todos</option>
-              {STATUS_REMOCAO.map((item) => (
-                <option key={item} value={item}>
-                  {item.replace('_', ' ')}
-                </option>
-              ))}
-            </select>
-          </label>
+          {comFiltros && (
+            <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
+              Status
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className={CAMPO_CLASSES}>
+                <option value="">Todos</option>
+                {STATUS_REMOCAO.map((item) => (
+                  <option key={item} value={item}>
+                    {item.replace('_', ' ')}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
+          {comFiltroPeriodo && (
+            <>
+              <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
+                De
+                <input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className={CAMPO_CLASSES} />
+              </label>
+              <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
+                Até
+                <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} className={CAMPO_CLASSES} />
+              </label>
+            </>
+          )}
 
           <button
             type="submit"

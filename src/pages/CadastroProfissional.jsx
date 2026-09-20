@@ -1,32 +1,21 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { ProfissionalFormulario } from '../components/ProfissionalFormulario.jsx';
+import { ConvidarProfissionalFormulario } from '../components/ConvidarProfissionalFormulario.jsx';
 
 export function CadastroProfissional() {
   const { sessao } = useAuth();
-  const [codigoCriado, setCodigoCriado] = useState(null);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-chumbo">Cadastrar Profissional</h1>
-        <p className="mt-1 text-sm text-text-secundario">Processo "Cadastrar Profissional" — a máscara do CPF é validada no envio.</p>
+        <h1 className="text-2xl font-bold text-chumbo">Convidar Profissional</h1>
+        <p className="mt-1 text-sm text-text-secundario">
+          Informe nome, sobrenome e e-mail. O profissional recebe um convite por e-mail para completar o próprio cadastro
+          (documentos, contato e registro profissional).
+        </p>
       </div>
 
-      <ProfissionalFormulario
-        rotuloBotao="Cadastrar Profissional"
-        resetarAoSalvar
-        enviar={(payload) => requisitar('/profissional', { method: 'POST', body: payload, token: sessao.token })}
-        aoSucesso={(resultado) => setCodigoCriado(resultado.codigo)}
-      />
-
-      {codigoCriado && (
-        <Link to={`/profissionais/${codigoCriado}/disponibilidade`} className="text-sm font-medium text-azul-petroleo hover:underline">
-          Definir disponibilidade do profissional cadastrado →
-        </Link>
-      )}
+      <ConvidarProfissionalFormulario enviar={(payload) => requisitar('/profissional', { method: 'POST', body: payload, token: sessao.token })} />
     </div>
   );
 }

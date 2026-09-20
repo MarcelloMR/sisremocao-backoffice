@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Campo, Secao, CAMPO_CLASSES } from './CampoFormulario.jsx';
@@ -8,6 +8,8 @@ const TIPOS_REMOCAO = ['Privada', 'Contrato'];
 
 const FORM_VAZIO = {
   tipo: 'Contrato',
+  clienteCodigo: '',
+  representanteCodigo: '',
   clienteAnonimoNome: '',
   clienteAnonimoTelefone: '',
 };
@@ -32,13 +34,31 @@ async function criarEndereco(sugestao, token) {
 // - aoSucesso(resultado): callback opcional
 export function RemocaoFormulario({ enviar, aoSucesso }) {
   const { sessao } = useAuth();
-  const ehCliente = sessao.usuario.papel === 'Cliente';
+  const ehCliente = sessao.usuario.papeis.includes('Cliente');
   const [form, setForm] = useState(FORM_VAZIO);
   const [origem, setOrigem] = useState(null);
   const [destino, setDestino] = useState(null);
+  const [clientes, setClientes] = useState([]);
+  const [representantes, setRepresentantes] = useState([]);
   const [erro, setErro] = useState(null);
   const [sucesso, setSucesso] = useState(null);
   const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    if (!ehCliente) {
+      requisitar('/cliente', { token: sessao.token }).then(setClientes).catch((e) => setErro(e.message));
+    }
+  }, [ehCliente, sessao.token]);
+
+  useEffect(() => {
+    if (!form.clienteCodigo) {
+      setRepresentantes([]);
+      return;
+    }
+    requisitar(`/cliente/${form.clienteCodigo}`, { token: sessao.token })
+      .then((cliente) => setRepresentantes(cliente.representantes || []))
+      .catch((e) => setErro(e.message));
+  }, [form.clienteCodigo, sessao.token]);
 
   function atualizarCampo(campo) {
     return (evento) => setForm((atual) => ({ ...atual, [campo]: evento.target.value }));
@@ -69,10 +89,17 @@ export function RemocaoFormulario({ enviar, aoSucesso }) {
       };
 
       if (!ehCliente) {
-        payload.clienteAnonimo = {
-          nome: form.clienteAnonimoNome,
-          telefone: form.clienteAnonimoTelefone,
-        };
+        if (form.clienteCodigo) {
+          payload.cliente = { codigo: Number(form.clienteCodigo) };
+          if (form.representanteCodigo) {
+            payload.representanteSolicitante = { codigo: Number(form.representanteCodigo) };
+          }
+        } else {
+          payload.clienteAnonimo = {
+            nome: form.clienteAnonimoNome,
+            telefone: form.clienteAnonimoTelefone,
+          };
+        }
       }
 
       const resultado = await enviar(payload);
@@ -103,23 +130,49 @@ export function RemocaoFormulario({ enviar, aoSucesso }) {
       </Secao>
 
       {!ehCliente && (
-        <Secao titulo="Cliente (solicitação avulsa, sem cadastro)">
-          <Campo rotulo="Nome" obrigatorio>
-            <input
-              value={form.clienteAnonimoNome}
-              onChange={atualizarCampo('clienteAnonimoNome')}
-              required
-              className={CAMPO_CLASSES}
-            />
+        <Secao titulo="Cliente">
+          <Campo rotulo="Cliente cadastrado">
+            <select value={form.clienteCodigo} onChange={atualizarCampo('clienteCodigo')} className={CAMPO_CLASSES}>
+              <option value="">Nenhum (solicitação avulsa, sem cadastro)</option>
+              {clientes.map((cliente) => (
+                <option key={cliente.codigo} value={cliente.codigo}>
+                  {cliente.nomeFantasia} {cliente.cnpj ? `— ${cliente.cnpj}` : ''}
+                </option>
+              ))}
+            </select>
           </Campo>
-          <Campo rotulo="Telefone" obrigatorio>
-            <input
-              value={form.clienteAnonimoTelefone}
-              onChange={atualizarCampo('clienteAnonimoTelefone')}
-              required
-              className={CAMPO_CLASSES}
-            />
-          </Campo>
+
+          {form.clienteCodigo ? (
+            <Campo rotulo="Representante que solicitou">
+              <select value={form.representanteCodigo} onChange={atualizarCampo('representanteCodigo')} className={CAMPO_CLASSES}>
+                <option value="">Não informado</option>
+                {representantes.map((representante) => (
+                  <option key={representante.codigo} value={representante.codigo}>
+                    {representante.nome} {representante.sobrenome}
+                  </option>
+                ))}
+              </select>
+            </Campo>
+          ) : (
+            <>
+              <Campo rotulo="Nome" obrigatorio>
+                <input
+                  value={form.clienteAnonimoNome}
+                  onChange={atualizarCampo('clienteAnonimoNome')}
+                  required
+                  className={CAMPO_CLASSES}
+                />
+              </Campo>
+              <Campo rotulo="Telefone" obrigatorio>
+                <input
+                  value={form.clienteAnonimoTelefone}
+                  onChange={atualizarCampo('clienteAnonimoTelefone')}
+                  required
+                  className={CAMPO_CLASSES}
+                />
+              </Campo>
+            </>
+          )}
         </Secao>
       )}
 

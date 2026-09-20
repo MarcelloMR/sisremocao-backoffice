@@ -95,8 +95,8 @@ export function DisponibilidadeProfissional() {
         <h1 className="mt-2 text-2xl font-bold text-chumbo">Disponibilidade</h1>
         {profissional && (
           <p className="mt-1 text-sm text-text-secundario">
-            {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome} · {profissional.tipo.replace('_', ' ')} · código{' '}
-            {profissional.codigo}
+            {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome}
+            {profissional.tipo ? ` · ${profissional.tipo.replace('_', ' ')}` : ''} · código {profissional.codigo}
           </p>
         )}
       </div>

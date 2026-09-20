@@ -99,7 +99,13 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
                 <td className="px-5 py-3 font-medium text-text-principal">
                   {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome}
                 </td>
-                <td className="px-5 py-3 text-text-principal">{profissional.tipo.replace('_', ' ')}</td>
+                <td className="px-5 py-3 text-text-principal">
+                  {profissional.tipo ? (
+                    profissional.tipo.replace('_', ' ')
+                  ) : (
+                    <span className="italic text-text-secundario">Cadastro pendente</span>
+                  )}
+                </td>
                 <td className="px-5 py-3 text-text-secundario">{profissional.dadosPessoais.email || '—'}</td>
                 {(mostrarEditar || mostrarRemover) && (
                   <td className="px-5 py-3">

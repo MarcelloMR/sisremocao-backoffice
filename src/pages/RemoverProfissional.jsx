@@ -56,7 +56,7 @@ export function RemoverProfissional() {
               <strong>
                 {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome}
               </strong>{' '}
-              ({profissional.tipo.replace('_', ' ')})?
+              ({profissional.tipo ? profissional.tipo.replace('_', ' ') : 'cadastro pendente'})?
             </p>
             <p className="mt-1 text-sm text-text-secundario">
               O cadastro é desativado (não é excluído) — o histórico de remoções, disponibilidade e dados bancários é

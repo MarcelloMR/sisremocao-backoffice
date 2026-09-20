@@ -27,3 +27,9 @@ body {
   color: var(--color-text-principal);
   font-family: var(--font-sans);
 }
+
+/* O preflight do Tailwind reseta o cursor padrão de <button> para "default"; sem isto, nenhum
+   botão do app parece clicável ao passar o mouse. */
+button:not(:disabled) {
+  cursor: pointer;
+}
