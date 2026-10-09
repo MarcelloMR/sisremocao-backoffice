@@ -3,9 +3,10 @@ import { Home, Ambulance, CalendarClock, History, Users, Truck, Building2 } from
 // Quem solicita remoção: Cliente (para si) ou Regulador (pedido recebido por telefone). Admin não solicita.
 // Monta os itens de cada papel presente em `papeis` e faz a união, sem duplicar por caminho — uma
 // pessoa com múltiplos papéis (ex: Profissional + Regulador) vê o menu combinado dos dois.
-export function itensNavegacao(papeis = []) {
+export function itensNavegacao(papeis = [], clienteTipo = null) {
   const eh = (papel) => papeis.includes(papel);
   const administrativo = eh('Admin') || eh('Regulador');
+  const clienteAdmin = eh('Cliente') && clienteTipo === 'Admin';
 
   const itensRemocoes = [];
   if (eh('Cliente')) {
@@ -59,6 +60,9 @@ export function itensNavegacao(papeis = []) {
   }
   if (itensClientes) {
     itens.push({ rotulo: 'Clientes', Icone: Building2, subitens: itensClientes });
+  }
+  if (clienteAdmin) {
+    itens.push({ rotulo: 'Minha Empresa', caminho: '/minha-empresa', Icone: Building2 });
   }
   if (itensProfissionais.length > 0) {
     itens.push({ rotulo: 'Profissionais', Icone: Users, subitens: itensProfissionais });

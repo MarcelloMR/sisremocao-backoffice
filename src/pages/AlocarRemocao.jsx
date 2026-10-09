@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -9,11 +9,13 @@ export function AlocarRemocao() {
   const { sessao } = useAuth();
   const [remocao, setRemocao] = useState(null);
 
-  useEffect(() => {
+  const recarregar = useCallback(() => {
     requisitar(`/remocao/${codigo}`, { token: sessao.token })
       .then(setRemocao)
       .catch(() => setRemocao(undefined));
   }, [codigo, sessao.token]);
+
+  useEffect(recarregar, [recarregar]);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -25,7 +27,13 @@ export function AlocarRemocao() {
       </div>
 
       {remocao !== null && (
-        <AlocarEquipeAmbulanciaFormulario remocaoId={codigo} tipoAmbulanciaDemandadaAtual={remocao?.tipoAmbulanciaDemandada} />
+        <AlocarEquipeAmbulanciaFormulario
+          remocaoId={codigo}
+          tipoAmbulanciaDemandadaAtual={remocao?.tipoAmbulanciaDemandada}
+          ambulanciaJaAlocada={Boolean(remocao?.ambulancia)}
+          equipeJaAlocada={Boolean(remocao?.equipe?.length)}
+          aoSucesso={recarregar}
+        />
       )}
     </div>
   );

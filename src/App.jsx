@@ -26,6 +26,7 @@ import { DetalharCliente } from './pages/DetalharCliente.jsx';
 import { EditarCliente } from './pages/EditarCliente.jsx';
 import { SolicitarRemocao } from './pages/SolicitarRemocao.jsx';
 import { ListarMinhasRemocoes } from './pages/ListarMinhasRemocoes.jsx';
+import { MinhaEmpresa } from './pages/MinhaEmpresa.jsx';
 import { BuscarRemocoes } from './pages/BuscarRemocoes.jsx';
 import { DetalharRemocao } from './pages/DetalharRemocao.jsx';
 import { AlocarRemocao } from './pages/AlocarRemocao.jsx';
@@ -109,6 +110,14 @@ export default function App() {
           element={
             <RotaCliente>
               <ListarMinhasRemocoes />
+            </RotaCliente>
+          }
+        />
+        <Route
+          path="/minha-empresa"
+          element={
+            <RotaCliente>
+              <MinhaEmpresa />
             </RotaCliente>
           }
         />

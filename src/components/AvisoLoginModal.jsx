@@ -17,67 +17,78 @@ export function AvisoLoginModal({ aviso, aoFechar }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-chumbo/50 px-4">
-      <div className="w-full max-w-md rounded-xl bg-bg-card p-6 shadow-lg">
-        {aviso.tipo === 'escalado' && (
-          <>
-            <h2 className="text-lg font-bold text-chumbo">Você foi escalado</h2>
-            <p className="mt-1 text-sm text-text-secundario">Você está escalado nas remoções abaixo:</p>
-            <ul className="mt-4 flex flex-col gap-2">
-              {aviso.remocoes.map((remocao) => (
-                <li key={remocao.codigo} className="rounded-lg bg-bg-app px-4 py-3 text-sm">
-                  <Link to={`/remocoes/${remocao.codigo}`} className="font-medium text-azul-petroleo hover:underline">
-                    Remoção #{remocao.codigo}
-                  </Link>
-                  <span className="ml-2 text-text-secundario">{remocao.status.replace('_', ' ')}</span>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+      <div className="relative flex max-h-[85vh] w-full max-w-md flex-col rounded-xl bg-bg-card p-6 shadow-lg">
+        <button
+          type="button"
+          onClick={aoFechar}
+          aria-label="Fechar"
+          className="absolute right-4 top-4 text-text-secundario transition-colors hover:text-chumbo"
+        >
+          ✕
+        </button>
 
-        {aviso.tipo === 'vagas-abertas' && (
-          <>
-            <h2 className="text-lg font-bold text-chumbo">Vagas disponíveis</h2>
-            <p className="mt-1 text-sm text-text-secundario">Existem vagas em aberto compatíveis com seu tipo:</p>
-            <ul className="mt-4 flex flex-col gap-2">
-              {aviso.vagas.map((vaga) => (
-                <li key={vaga.codigo} className="rounded-lg bg-bg-app px-4 py-3 text-sm">
-                  <Link to="/profissional/remocoes" className="font-medium text-azul-petroleo hover:underline">
-                    Remoção #{vaga.remocaoCodigo}
-                  </Link>
-                  {vaga.dataHoraAtendimento && (
-                    <span className="ml-2 text-text-secundario">{new Date(vaga.dataHoraAtendimento).toLocaleString('pt-BR')}</span>
-                  )}
-                  {!vaga.disponivel && <span className="ml-2 text-vermelho">indisponível na sua grade</span>}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+        <div className="flex-1 overflow-y-auto pr-5">
+          {aviso.tipo === 'escalado' && (
+            <>
+              <h2 className="text-lg font-bold text-chumbo">Você foi escalado</h2>
+              <p className="mt-1 text-sm text-text-secundario">Você está escalado nas remoções abaixo:</p>
+              <ul className="mt-4 flex flex-col gap-2">
+                {aviso.remocoes.map((remocao) => (
+                  <li key={remocao.codigo} className="rounded-lg bg-bg-app px-4 py-3 text-sm">
+                    <Link to={`/remocoes/${remocao.codigo}`} className="font-medium text-azul-petroleo hover:underline">
+                      Remoção #{remocao.codigo}
+                    </Link>
+                    <span className="ml-2 text-text-secundario">{remocao.status.replace('_', ' ')}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
-        {aviso.tipo === 'remocoes-solicitadas' && (
-          <>
-            <h2 className="text-lg font-bold text-chumbo">Novas solicitações de remoção</h2>
-            <p className="mt-1 text-sm text-text-secundario">Remoções aguardando escalação:</p>
-            <ul className="mt-4 flex flex-col gap-2">
-              {aviso.remocoes.map((remocao) => (
-                <li key={remocao.codigo} className="rounded-lg bg-bg-app px-4 py-3 text-sm">
-                  <Link to={`/remocoes/${remocao.codigo}`} className="font-medium text-azul-petroleo hover:underline">
-                    Remoção #{remocao.codigo}
-                  </Link>
-                  {remocao.dataHoraSolicitacao && (
-                    <span className="ml-2 text-text-secundario">{new Date(remocao.dataHoraSolicitacao).toLocaleString('pt-BR')}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+          {aviso.tipo === 'vagas-abertas' && (
+            <>
+              <h2 className="text-lg font-bold text-chumbo">Vagas disponíveis</h2>
+              <p className="mt-1 text-sm text-text-secundario">Existem vagas em aberto compatíveis com seu tipo:</p>
+              <ul className="mt-4 flex flex-col gap-2">
+                {aviso.vagas.map((vaga) => (
+                  <li key={vaga.codigo} className="rounded-lg bg-bg-app px-4 py-3 text-sm">
+                    <Link to="/profissional/remocoes" className="font-medium text-azul-petroleo hover:underline">
+                      Remoção #{vaga.remocaoCodigo}
+                    </Link>
+                    {vaga.dataHoraAtendimento && (
+                      <span className="ml-2 text-text-secundario">{new Date(vaga.dataHoraAtendimento).toLocaleString('pt-BR')}</span>
+                    )}
+                    {!vaga.disponivel && <span className="ml-2 text-vermelho">indisponível na sua grade</span>}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {aviso.tipo === 'remocoes-solicitadas' && (
+            <>
+              <h2 className="text-lg font-bold text-chumbo">Novas solicitações de remoção</h2>
+              <p className="mt-1 text-sm text-text-secundario">Remoções aguardando escalação:</p>
+              <ul className="mt-4 flex flex-col gap-2">
+                {aviso.remocoes.map((remocao) => (
+                  <li key={remocao.codigo} className="rounded-lg bg-bg-app px-4 py-3 text-sm">
+                    <Link to={`/remocoes/${remocao.codigo}/alocar`} className="font-medium text-azul-petroleo hover:underline">
+                      Remoção #{remocao.codigo}
+                    </Link>
+                    {remocao.dataHoraSolicitacao && (
+                      <span className="ml-2 text-text-secundario">{new Date(remocao.dataHoraSolicitacao).toLocaleString('pt-BR')}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
 
         <button
           type="button"
           onClick={aoFechar}
-          className="mt-6 w-full rounded-lg bg-chumbo py-2.5 text-sm font-semibold text-white transition-colors hover:bg-chumbo/90"
+          className="mt-6 w-full shrink-0 rounded-lg bg-chumbo py-2.5 text-sm font-semibold text-white transition-colors hover:bg-chumbo/90"
         >
           Fechar
         </button>

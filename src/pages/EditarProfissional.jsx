@@ -51,6 +51,32 @@ export function EditarProfissional() {
     return <p className="rounded-lg bg-vermelho/10 px-4 py-3 text-sm font-medium text-vermelho">{erro || 'Profissional não encontrado.'}</p>;
   }
 
+  // Depois que o próprio profissional completa o cadastro (CPF preenchido), nem Admin nem
+  // Regulador podem mais editar os dados dele — só o próprio profissional. A API já bloqueia isso
+  // com 403; aqui evitamos mostrar um formulário que vai falhar ao salvar.
+  const cadastroCompleto = Boolean(profissional.dadosPessoais.cpf);
+
+  if (cadastroCompleto) {
+    return (
+      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+        <div>
+          <h1 className="text-2xl font-bold text-chumbo">
+            {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome}
+          </h1>
+        </div>
+
+        <p className="rounded-lg bg-bg-card px-4 py-3 text-sm text-text-secundario">
+          Este profissional já completou o próprio cadastro. A partir daí, só ele pode editar seus dados pessoais e
+          profissionais — Admin e Regulador só podem ajustar a disponibilidade.
+        </p>
+
+        <Link to={`/profissionais/${codigo}/disponibilidade`} className="text-sm font-medium text-azul-petroleo hover:underline">
+          Editar disponibilidade →
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <div>

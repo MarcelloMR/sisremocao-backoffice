@@ -6,15 +6,21 @@ import { Campo, Secao, CAMPO_CLASSES } from './CampoFormulario.jsx';
 const FORM_VAZIO = { nome: '', sobrenome: '', dataNascimento: '', cpf: '', email: '', telefone: '' };
 
 // props:
-// - clienteId: código do cliente ao qual os representantes pertencem
+// - clienteId: código do cliente ao qual os representantes pertencem (usado para montar o path
+//   padrão POST /cliente/:codigo; ignorado se rotaConvite for informada)
+// - rotaConvite: path alternativo para o convite, ex: '/cliente/me/representantes' (cliente_admin
+//   convidando um cliente_user da própria empresa, ver migração 0023). Nesse caso o e-mail é sempre
+//   obrigatório (não existe "representante sem acesso" para esse fluxo).
 // - representantes: lista atual (vem de cliente.consultar)
 // - aoAdicionar(): callback pra recarregar a lista após adicionar
-export function RepresentantesCliente({ clienteId, representantes, aoAdicionar }) {
+export function RepresentantesCliente({ clienteId, rotaConvite, representantes, aoAdicionar }) {
   const { sessao } = useAuth();
   const [form, setForm] = useState(FORM_VAZIO);
   const [erro, setErro] = useState(null);
   const [sucesso, setSucesso] = useState(null);
   const [enviando, setEnviando] = useState(false);
+
+  const emailObrigatorio = Boolean(rotaConvite);
 
   function atualizarCampo(campo) {
     return (evento) => setForm((atual) => ({ ...atual, [campo]: evento.target.value }));
@@ -27,9 +33,9 @@ export function RepresentantesCliente({ clienteId, representantes, aoAdicionar }
     setEnviando(true);
 
     try {
-      // Rota é POST /cliente/:codigo (mesmo path do PUT que atualiza o cliente; só o verbo muda) —
-      // decisão consciente documentada em services/index.js no backend.
-      const resultado = await requisitar(`/cliente/${clienteId}`, {
+      // Rota padrão é POST /cliente/:codigo (mesmo path do PUT que atualiza o cliente; só o verbo
+      // muda) — decisão consciente documentada em services/index.js no backend.
+      const resultado = await requisitar(rotaConvite || `/cliente/${clienteId}`, {
         method: 'POST',
         body: {
           nome: form.nome,
@@ -42,7 +48,7 @@ export function RepresentantesCliente({ clienteId, representantes, aoAdicionar }
         token: sessao.token,
       });
       setSucesso(
-        resultado.contaCriada
+        emailObrigatorio || resultado.contaCriada
           ? 'Representante cadastrado. Um convite de acesso foi enviado por e-mail.'
           : 'Representante cadastrado sem acesso ao sistema (informe um e-mail para liberar login).'
       );
@@ -91,8 +97,14 @@ export function RepresentantesCliente({ clienteId, representantes, aoAdicionar }
           <Campo rotulo="CPF">
             <input value={form.cpf} onChange={atualizarCampo('cpf')} maxLength={11} placeholder="Somente números" className={CAMPO_CLASSES} />
           </Campo>
-          <Campo rotulo="E-mail">
-            <input type="email" value={form.email} onChange={atualizarCampo('email')} className={CAMPO_CLASSES} />
+          <Campo rotulo="E-mail" obrigatorio={emailObrigatorio}>
+            <input
+              type="email"
+              value={form.email}
+              onChange={atualizarCampo('email')}
+              required={emailObrigatorio}
+              className={CAMPO_CLASSES}
+            />
           </Campo>
           <Campo rotulo="Telefone">
             <input value={form.telefone} onChange={atualizarCampo('telefone')} className={CAMPO_CLASSES} />

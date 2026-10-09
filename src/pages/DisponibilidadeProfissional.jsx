@@ -74,7 +74,7 @@ export function DisponibilidadeProfissional() {
         body: { disponibilidade },
         token: sessao.token,
       });
-      setSucesso('Disponibilidade salva com sucesso.');
+      setSucesso('Indisponibilidade salva com sucesso.');
     } catch (excecao) {
       setErro(excecao.cause || excecao.message);
     } finally {
@@ -92,13 +92,17 @@ export function DisponibilidadeProfissional() {
         <Link to="/" className="text-sm font-medium text-azul-petroleo hover:underline">
           ← Voltar
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-chumbo">Disponibilidade</h1>
+        <h1 className="mt-2 text-2xl font-bold text-chumbo">Indisponibilidade</h1>
         {profissional && (
           <p className="mt-1 text-sm text-text-secundario">
             {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome}
             {profissional.tipo ? ` · ${profissional.tipo.replace('_', ' ')}` : ''} · código {profissional.codigo}
           </p>
         )}
+        <p className="mt-2 text-sm text-text-secundario">
+          Por padrão o profissional está disponível o tempo todo. Marque abaixo apenas os dias e horários em que ele{' '}
+          <strong>não</strong> pode ser escalado.
+        </p>
       </div>
 
       <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
@@ -106,7 +110,7 @@ export function DisponibilidadeProfissional() {
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Dia da semana</th>
-              <th className="px-5 py-3 font-bold">Disponível</th>
+              <th className="px-5 py-3 font-bold">Indisponível</th>
               <th className="px-5 py-3 font-bold">Início</th>
               <th className="px-5 py-3 font-bold">Fim</th>
             </tr>
@@ -156,7 +160,7 @@ export function DisponibilidadeProfissional() {
         disabled={salvando}
         className="self-start rounded-lg bg-chumbo px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-chumbo/90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {salvando ? 'Salvando...' : 'Salvar disponibilidade'}
+        {salvando ? 'Salvando...' : 'Salvar indisponibilidade'}
       </button>
     </div>
   );

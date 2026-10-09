@@ -47,7 +47,7 @@ function ItemComSubmenu({ rotulo, Icone, subitens }) {
 
 export function Sidebar() {
   const { sessao } = useAuth();
-  const itens = itensNavegacao(sessao?.usuario?.papeis);
+  const itens = itensNavegacao(sessao?.usuario?.papeis, sessao?.usuario?.clienteTipo);
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col overflow-y-auto bg-chumbo">

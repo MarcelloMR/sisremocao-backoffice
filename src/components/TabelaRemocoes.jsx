@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { CAMPO_CLASSES } from './CampoFormulario.jsx';
-
-const STATUS_REMOCAO = ['Solicitada', 'Em_Andamento', 'Realizada', 'Aguardando_Pagamento', 'Paga', 'Cancelada'];
+import { TODOS_STATUS_REMOCAO, rotuloStatus } from '../constants/statusRemocao.js';
 
 // props:
 // - comFiltros: mostra campo de busca por status acima da tabela
@@ -56,9 +55,9 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
               Status
               <select value={status} onChange={(e) => setStatus(e.target.value)} className={CAMPO_CLASSES}>
                 <option value="">Todos</option>
-                {STATUS_REMOCAO.map((item) => (
+                {TODOS_STATUS_REMOCAO.map((item) => (
                   <option key={item} value={item}>
-                    {item.replace('_', ' ')}
+                    {rotuloStatus(item)}
                   </option>
                 ))}
               </select>
@@ -110,7 +109,7 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
             {remocoes.map((remocao) => (
               <tr key={remocao.codigo} className="border-t border-text-secundario/10">
                 <td className="px-5 py-3 font-medium text-text-principal">#{remocao.codigo}</td>
-                <td className="px-5 py-3 text-text-secundario">{remocao.status.replace('_', ' ')}</td>
+                <td className="px-5 py-3 text-text-secundario">{rotuloStatus(remocao.status)}</td>
                 <td className="px-5 py-3 text-text-secundario">
                   {remocao.dataHoraSolicitacao ? new Date(remocao.dataHoraSolicitacao).toLocaleString('pt-BR') : '—'}
                 </td>
