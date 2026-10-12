@@ -54,6 +54,7 @@ export function EditarAmbulancia() {
 
       <AmbulanciaFormulario
         valoresIniciais={paraValoresIniciais(ambulancia)}
+        edicao
         rotuloBotao="Salvar alterações"
         enviar={(payload) => requisitar(`/ambulancia/${codigo}`, { method: 'PUT', body: payload, token: sessao.token })}
       />

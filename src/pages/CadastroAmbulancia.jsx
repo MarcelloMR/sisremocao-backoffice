@@ -9,7 +9,7 @@ export function CadastroAmbulancia() {
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-chumbo">Cadastrar Ambulância</h1>
-        <p className="mt-1 text-sm text-text-secundario">A placa deve seguir o padrão ABC1234 (3 letras + 4 números).</p>
+        <p className="mt-1 text-sm text-text-secundario">A ambulância é cadastrada como Disponível; o status pode ser ajustado depois, em Atualizar. A placa aceita o padrão antigo (ABC1234) ou o Mercosul (ABC1D23).</p>
       </div>
 
       <AmbulanciaFormulario

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { CAMPO_CLASSES } from './CampoFormulario.jsx';
+import { CAMPO_CLASSES, RotuloCampo } from './CampoFormulario.jsx';
 
 // props:
 // - rotulo: texto do label (ex: "Origem", "Destino")
@@ -58,8 +58,7 @@ export function BuscaEndereco({ rotulo, valor, aoSelecionar }) {
   return (
     <div className="relative flex flex-col gap-1.5">
       <label className="text-sm font-medium text-text-principal">
-        {rotulo}
-        <span className="text-vermelho"> *</span>
+        <RotuloCampo rotulo={rotulo} obrigatorio />
       </label>
       <input
         value={query}
