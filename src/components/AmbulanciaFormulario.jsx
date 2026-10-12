@@ -21,9 +21,11 @@ const FORM_VAZIO = {
   municipioCodigo: '',
 };
 
-export function montarPayloadAmbulancia(form) {
+// No cadastro o status não é enviado: toda ambulância nasce Disponivel (regra da API) e só pode
+// ser ajustada depois, na tela de atualização.
+export function montarPayloadAmbulancia(form, { edicao = false } = {}) {
   return {
-    status: form.status,
+    status: edicao ? form.status : undefined,
     numeroIdentificacao: form.numeroIdentificacao ? Number(form.numeroIdentificacao) : undefined,
     utiMovel: form.utiMovel,
     carro: {
@@ -46,7 +48,8 @@ export function montarPayloadAmbulancia(form) {
 // - enviar(payload): função assíncrona que faz o POST/PUT de fato
 // - aoSucesso(resultado): callback opcional pra efeitos específicos da tela
 // - resetarAoSalvar: limpa o formulário após sucesso (uso típico: tela de cadastro)
-export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoSucesso, resetarAoSalvar }) {
+// - edicao: tela de atualização — mostra o campo Status e não exige reinformar o município
+export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoSucesso, resetarAoSalvar, edicao = false }) {
   const { sessao } = useAuth();
   const [form, setForm] = useState({ ...FORM_VAZIO, ...valoresIniciais });
   const [estados, setEstados] = useState([]);
@@ -85,7 +88,7 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
     setEnviando(true);
 
     try {
-      const resultado = await enviar(montarPayloadAmbulancia(form));
+      const resultado = await enviar(montarPayloadAmbulancia(form, { edicao }));
       setSucesso(resultado);
       if (resetarAoSalvar) {
         setForm({ ...FORM_VAZIO, ...valoresIniciais });
@@ -102,18 +105,27 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
   return (
     <form className="flex flex-col gap-6" onSubmit={aoSubmeter}>
       <Secao titulo="Dados da ambulância">
-        <Campo rotulo="Status" obrigatorio>
-          <select value={form.status} onChange={atualizarCampo('status')} required className={CAMPO_CLASSES}>
-            {STATUS_AMBULANCIA.map((status) => (
-              <option key={status} value={status}>
-                {status.replace('_', ' ')}
-              </option>
-            ))}
-          </select>
-        </Campo>
+        {edicao && (
+          <Campo rotulo="Status" obrigatorio>
+            <select value={form.status} onChange={atualizarCampo('status')} required className={CAMPO_CLASSES}>
+              {STATUS_AMBULANCIA.map((status) => (
+                <option key={status} value={status}>
+                  {status.replace('_', ' ')}
+                </option>
+              ))}
+            </select>
+          </Campo>
+        )}
 
         <Campo rotulo="Número de identificação">
-          <input value={form.numeroIdentificacao} onChange={atualizarCampo('numeroIdentificacao')} className={CAMPO_CLASSES} />
+          <input
+            value={form.numeroIdentificacao}
+            onChange={atualizarCampo('numeroIdentificacao')}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder={edicao ? undefined : 'Gerado automaticamente se ficar em branco'}
+            className={CAMPO_CLASSES}
+          />
         </Campo>
 
         <label className="flex items-center gap-2 text-sm font-medium text-text-principal">
@@ -153,7 +165,9 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
             onChange={atualizarCampo('placaIdentificador')}
             required
             maxLength={7}
-            placeholder="ABC1234"
+            pattern="[A-Za-z]{3}[0-9][A-Za-z0-9][0-9]{2}"
+            title="Padrão antigo (ABC1234) ou Mercosul (ABC1D23), sem hífen"
+            placeholder="ABC1234 ou ABC1D23"
             className={CAMPO_CLASSES}
           />
         </Campo>
@@ -162,8 +176,8 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
           <input value={form.chassi} onChange={atualizarCampo('chassi')} className={CAMPO_CLASSES} />
         </Campo>
 
-        <Campo rotulo="Estado">
-          <select value={form.estadoSigla} onChange={atualizarCampo('estadoSigla')} className={CAMPO_CLASSES}>
+        <Campo rotulo="Estado" obrigatorio={!edicao}>
+          <select value={form.estadoSigla} onChange={atualizarCampo('estadoSigla')} required={!edicao} className={CAMPO_CLASSES}>
             <option value="">Selecione</option>
             {estados.map((estado) => (
               <option key={estado.codigo} value={estado.sigla}>
@@ -173,11 +187,12 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
           </select>
         </Campo>
 
-        <Campo rotulo="Município">
+        <Campo rotulo="Município" obrigatorio={!edicao}>
           <select
             value={form.municipioCodigo}
             onChange={atualizarCampo('municipioCodigo')}
             disabled={!form.estadoSigla}
+            required={!edicao}
             className={CAMPO_CLASSES}
           >
             <option value="">Selecione</option>
@@ -194,6 +209,7 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
       {sucesso && (
         <p className="rounded-lg bg-azul-petroleo/10 px-4 py-3 text-sm font-medium text-azul-petroleo">
           Salvo com sucesso. Código: {sucesso.codigo}
+          {sucesso.numeroIdentificacao != null && ` — Número de identificação: ${sucesso.numeroIdentificacao}`}
         </p>
       )}
 
