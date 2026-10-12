@@ -10,7 +10,6 @@ function paraValoresIniciais(ambulancia) {
   return {
     status: ambulancia.status,
     numeroIdentificacao: ambulancia.numeroIdentificacao ?? '',
-    utiMovel: Boolean(ambulancia.utiMovel),
     modelo: carro.modelo || '',
     fabricante: carro.fabricante || '',
     ano: carro.ano ?? '',

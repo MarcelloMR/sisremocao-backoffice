@@ -91,14 +91,13 @@ export function TabelaAmbulancias({ comFiltros = true, mostrarDetalhar = true, m
               <th className="px-5 py-3 font-bold">Placa</th>
               <th className="px-5 py-3 font-bold">Modelo</th>
               <th className="px-5 py-3 font-bold">Status</th>
-              <th className="px-5 py-3 font-bold">UTI Móvel</th>
               {mostrarAcoes && <th className="px-5 py-3 font-bold">Ações</th>}
             </tr>
           </thead>
           <tbody>
             {!carregando && ambulancias.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
+                <td colSpan={5} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhuma ambulância encontrada.
                 </td>
               </tr>
@@ -109,7 +108,6 @@ export function TabelaAmbulancias({ comFiltros = true, mostrarDetalhar = true, m
                 <td className="px-5 py-3 text-text-principal">{ambulancia.placaIdentificador}</td>
                 <td className="px-5 py-3 text-text-principal">{ambulancia.modelo}</td>
                 <td className="px-5 py-3 text-text-secundario">{ambulancia.status.replace('_', ' ')}</td>
-                <td className="px-5 py-3 text-text-secundario">{ambulancia.utiMovel ? 'Sim' : 'Não'}</td>
                 {mostrarAcoes && (
                   <td className="px-5 py-3">
                     <div className="flex gap-3">
