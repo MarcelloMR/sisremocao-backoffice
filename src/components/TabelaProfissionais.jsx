@@ -6,11 +6,18 @@ import { CAMPO_CLASSES } from './CampoFormulario.jsx';
 
 const TIPOS_PROFISSIONAL = ['Medico', 'Enfermeiro', 'Motorista', 'Tecnico_Enfermagem'];
 
+const ROTULO_PAPEL = { regulador: 'Regulador', admin: 'Admin' };
+
 // props:
 // - comFiltros: mostra campos de busca (nome/tipo) acima da tabela
 // - mostrarEditar / mostrarRemover: quais ações aparecem por linha
+//
+// As colunas Regulador e Admin mostram os papéis que o profissional acumula. Todo mundo que vê a
+// lista enxerga as marcações; só quem é Admin consegue alterá-las (a API também só aceita de Admin).
 export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, mostrarRemover = true }) {
   const { sessao } = useAuth();
+  const podeAlterarPapeis = Boolean(sessao.usuario.papeis?.includes('Admin'));
+  const [salvandoPapel, setSalvandoPapel] = useState(null);
   const [nome, setNome] = useState('');
   const [tipo, setTipo] = useState('');
   const [profissionais, setProfissionais] = useState([]);
@@ -37,6 +44,56 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
     buscar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // papel: 'regulador' | 'admin'. Confirma antes, porque um clique concede (ou retira) acesso amplo.
+  async function alterarPapel(profissional, papel, conceder) {
+    const nomeCompleto = `${profissional.dadosPessoais.nome} ${profissional.dadosPessoais.sobrenome}`;
+    const pergunta = conceder
+      ? `Conceder o papel ${ROTULO_PAPEL[papel]} a ${nomeCompleto}?`
+      : `Retirar o papel ${ROTULO_PAPEL[papel]} de ${nomeCompleto}?`;
+    if (!window.confirm(pergunta)) {
+      return;
+    }
+
+    setErro(null);
+    setSalvandoPapel(`${profissional.codigo}:${papel}`);
+    try {
+      const resposta = await requisitar(`/profissional/${profissional.codigo}/papeis`, {
+        method: 'PUT',
+        body: { [papel]: conceder },
+        token: sessao.token,
+      });
+      setProfissionais((atuais) =>
+        atuais.map((item) =>
+          item.codigo === profissional.codigo ? { ...item, ehRegulador: resposta.ehRegulador, ehAdmin: resposta.ehAdmin } : item
+        )
+      );
+    } catch (excecao) {
+      setErro(excecao.cause || excecao.message);
+    } finally {
+      setSalvandoPapel(null);
+    }
+  }
+
+  function caixaPapel(profissional, papel, marcado) {
+    return (
+      <input
+        type="checkbox"
+        checked={Boolean(marcado)}
+        disabled={!podeAlterarPapeis || !profissional.temConta || salvandoPapel !== null}
+        onChange={(evento) => alterarPapel(profissional, papel, evento.target.checked)}
+        aria-label={`${ROTULO_PAPEL[papel]}: ${profissional.dadosPessoais.nome} ${profissional.dadosPessoais.sobrenome}`}
+        title={
+          !profissional.temConta
+            ? 'Profissional sem conta de acesso'
+            : podeAlterarPapeis
+              ? undefined
+              : 'Só um Admin pode alterar'
+        }
+        className="size-4 disabled:cursor-not-allowed"
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -83,13 +140,15 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
               <th className="px-5 py-3 font-bold">Nome</th>
               <th className="px-5 py-3 font-bold">Tipo</th>
               <th className="px-5 py-3 font-bold">E-mail</th>
+              <th className="px-5 py-3 text-center font-bold">Regulador</th>
+              <th className="px-5 py-3 text-center font-bold">Admin</th>
               {(mostrarEditar || mostrarRemover) && <th className="px-5 py-3 font-bold">Ações</th>}
             </tr>
           </thead>
           <tbody>
             {!carregando && profissionais.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
+                <td colSpan={6} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhum profissional encontrado.
                 </td>
               </tr>
@@ -107,6 +166,8 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
                   )}
                 </td>
                 <td className="px-5 py-3 text-text-secundario">{profissional.dadosPessoais.email || '—'}</td>
+                <td className="px-5 py-3 text-center">{caixaPapel(profissional, 'regulador', profissional.ehRegulador)}</td>
+                <td className="px-5 py-3 text-center">{caixaPapel(profissional, 'admin', profissional.ehAdmin)}</td>
                 {(mostrarEditar || mostrarRemover) && (
                   <td className="px-5 py-3">
                     <div className="flex gap-3">
@@ -128,6 +189,12 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
           </tbody>
         </table>
       </div>
+
+      {podeAlterarPapeis && profissionais.length > 0 && (
+        <p className="text-xs text-text-secundario">
+          Alterar Regulador ou Admin vale a partir do próximo login da pessoa.
+        </p>
+      )}
     </div>
   );
 }
