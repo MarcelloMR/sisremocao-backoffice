@@ -48,7 +48,6 @@ export function DetalharAmbulancia() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <LinhaDetalhe rotulo="Status" valor={ambulancia.status.replace('_', ' ')} />
           <LinhaDetalhe rotulo="Número de identificação" valor={ambulancia.numeroIdentificacao} />
-          <LinhaDetalhe rotulo="UTI Móvel" valor={ambulancia.utiMovel ? 'Sim' : 'Não'} />
         </div>
       </section>
 

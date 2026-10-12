@@ -8,7 +8,6 @@ const STATUS_AMBULANCIA = ['Disponivel', 'Ocupada', 'Revisao_Oficina', 'Alugada'
 const FORM_VAZIO = {
   status: 'Disponivel',
   numeroIdentificacao: '',
-  utiMovel: false,
   modelo: '',
   fabricante: '',
   ano: '',
@@ -27,7 +26,6 @@ export function montarPayloadAmbulancia(form, { edicao = false } = {}) {
   return {
     status: edicao ? form.status : undefined,
     numeroIdentificacao: form.numeroIdentificacao ? Number(form.numeroIdentificacao) : undefined,
-    utiMovel: form.utiMovel,
     carro: {
       modelo: form.modelo,
       fabricante: form.fabricante,
@@ -127,11 +125,6 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
             className={CAMPO_CLASSES}
           />
         </Campo>
-
-        <label className="flex items-center gap-2 text-sm font-medium text-text-principal">
-          <input type="checkbox" checked={form.utiMovel} onChange={atualizarCampo('utiMovel')} className="size-4" />
-          UTI Móvel (exige médico na equipe)
-        </label>
       </Secao>
 
       <Secao titulo="Dados do veículo">
