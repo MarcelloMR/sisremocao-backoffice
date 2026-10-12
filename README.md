@@ -73,6 +73,22 @@ npm run build
 npm run lint
 ```
 
+### Produção (Firebase Hosting)
+
+O site é publicado no Firebase Hosting do projeto GCP `sis-remocao-prod` (config em `firebase.json` e
+`.firebaserc`). Todo push na `main` passa por lint + build e é publicado automaticamente pelo workflow
+`.github/workflows/deploy.yml`.
+
+O build de produção lê o `.env.production`: o frontend chama a API direto no Cloud Run, então a origem
+do site precisa estar na variável `CORS_ORIGINS` do serviço `sisremocao-api`.
+
+Deploy manual, se precisar:
+
+```powershell
+npm run build
+npx firebase-tools deploy --only hosting --project sis-remocao-prod
+```
+
 ## Estrutura
 
 - `src/api/client.js` — wrapper de `fetch` para a API (injeta o token JWT, trata erros).

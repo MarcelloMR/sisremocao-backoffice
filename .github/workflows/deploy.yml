@@ -1,0 +1,82 @@
+name: CI/CD — sisremocao-backoffice (frontend)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: 24
+  GCP_PROJECT: sis-remocao-prod
+  # Workload Identity Federation: o GitHub troca o token OIDC do job por uma credencial temporária
+  # da service account de deploy — não existe chave guardada no repositório. Nenhum dos dois valores
+  # abaixo é segredo (são só identificadores).
+  WIF_PROVIDER: projects/987698400639/locations/global/workloadIdentityPools/github/providers/sisremocao-backoffice-repo
+  DEPLOY_SERVICE_ACCOUNT: github-deploy-frontend@sis-remocao-prod.iam.gserviceaccount.com
+
+jobs:
+  build:
+    name: Lint e build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # `vite build` roda em modo production e lê o .env.production (VITE_API_URL da API em produção).
+      - name: Build de produção
+        run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+
+  deploy:
+    name: Deploy no Firebase Hosting (prod)
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      # O checkout traz firebase.json e .firebaserc; o conteúdo publicado é exatamente o dist
+      # gerado (e validado) no job de build.
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Autenticar no GCP (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Publicar no Firebase Hosting
+        run: npx --yes firebase-tools@15.33.0 deploy --only hosting --project "${GCP_PROJECT}" --non-interactive
