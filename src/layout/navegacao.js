@@ -30,17 +30,16 @@ export function itensNavegacao(papeis = [], clienteTipo = null) {
       ]
     : null;
 
-  // Consultar profissionais/ambulâncias é liberado a qualquer usuário autenticado no backend,
-  // então também mostramos "Buscar" a quem tem qualquer papel administrativo ou é Profissional.
-  const itensProfissionais = administrativo || eh('Profissional') ? [{ rotulo: 'Buscar', caminho: '/profissionais/buscar' }] : [];
+  // Gestão de profissionais é só do Admin (decisão de produto de 2026-10-12). O Regulador apenas
+  // busca — e lista profissionais ao montar a equipe de uma remoção. Quem é só Profissional ou
+  // Cliente não vê este menu (a API também não lista profissionais para eles).
+  const itensProfissionais = administrativo ? [{ rotulo: 'Buscar', caminho: '/profissionais/buscar' }] : [];
   if (eh('Admin')) {
     itensProfissionais.push(
       { rotulo: 'Cadastrar', caminho: '/profissionais/novo' },
       { rotulo: 'Atualizar', caminho: '/profissionais/atualizar' },
       { rotulo: 'Remover', caminho: '/profissionais/remover' }
     );
-  } else if (eh('Regulador')) {
-    itensProfissionais.push({ rotulo: 'Atualizar', caminho: '/profissionais/atualizar' });
   }
 
   // Ambulâncias: cadastrar/editar/remover é só Admin desde que Regulador passou a só consultar.
