@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 export function AppLayout() {
   const { sessao } = useAuth();
   const [aviso, setAviso] = useState(null);
-  // Abaixo de 1024px o menu lateral vira uma gaveta, aberta pelo botão da barra superior.
+  // Abaixo de 1280px o menu lateral vira uma gaveta, aberta pelo botão da barra superior.
   const [menuAberto, setMenuAberto] = useState(false);
   const { pathname } = useLocation();
 

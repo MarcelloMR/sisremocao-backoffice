@@ -46,7 +46,7 @@ function FormularioValorCobrado({ codigo, valorAtual, token, aoSalvar }) {
   }
 
   return (
-    <form onSubmit={aoSubmeter} className="flex flex-wrap items-end gap-3">
+    <form onSubmit={aoSubmeter} className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-end">
       <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
         Valor cobrado (R$)
         <input
@@ -188,7 +188,7 @@ export function DetalharRemocao() {
           <LinhaDetalhe rotulo="Tipo de ambulância" valor={remocao.tipoAmbulanciaDemandada || 'Não definido'} />
           <LinhaDetalhe
             rotulo="Equipe"
-            valor={remocao.equipe?.length ? remocao.equipe.map((p) => `${p.nome} (${p.tipo.replace('_', ' ')})`).join(', ') : 'Não alocada'}
+            valor={remocao.equipe?.length ? remocao.equipe.map((p) => `${p.nome} (${p.tipo ? p.tipo.replace('_', ' ') : 'cadastro pendente'})`).join(', ') : 'Não alocada'}
           />
         </div>
       </section>

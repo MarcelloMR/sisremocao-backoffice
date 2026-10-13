@@ -48,7 +48,7 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
             evento.preventDefault();
             buscar();
           }}
-          className="flex flex-wrap items-end gap-3 rounded-xl bg-bg-card p-4 shadow-sm"
+          className="grid grid-cols-1 gap-3 rounded-xl bg-bg-card p-4 shadow-sm sm:flex sm:flex-wrap sm:items-end"
         >
           {comFiltros && (
             <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
@@ -88,8 +88,8 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
 
       {erro && <p className="rounded-lg bg-vermelho/10 px-4 py-3 text-sm font-medium text-vermelho">{erro}</p>}
 
-      <div className="overflow-x-auto rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full min-w-[760px] text-sm">
+      <div className="tabela-cartoes-moldura overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="tabela-cartoes w-full text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Código</th>
@@ -100,7 +100,7 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
           </thead>
           <tbody>
             {!carregando && remocoes.length === 0 && (
-              <tr>
+              <tr className="linha-vazia">
                 <td colSpan={4} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhuma remoção encontrada.
                 </td>
@@ -108,12 +108,12 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
             )}
             {remocoes.map((remocao) => (
               <tr key={remocao.codigo} className="border-t border-text-secundario/10">
-                <td className="px-5 py-3 font-medium text-text-principal">#{remocao.codigo}</td>
-                <td className="px-5 py-3 text-text-secundario">{rotuloStatus(remocao.status)}</td>
-                <td className="px-5 py-3 text-text-secundario">
+                <td className="celula-titulo px-5 py-3 font-medium text-text-principal">#{remocao.codigo}</td>
+                <td data-rotulo="Status" className="px-5 py-3 text-text-secundario">{rotuloStatus(remocao.status)}</td>
+                <td data-rotulo="Solicitada em" className="px-5 py-3 text-text-secundario">
                   {remocao.dataHoraSolicitacao ? new Date(remocao.dataHoraSolicitacao).toLocaleString('pt-BR') : '—'}
                 </td>
-                <td className="px-5 py-3">
+                <td className="celula-acoes px-5 py-3">
                   <div className="flex gap-3">
                     <Link to={`/remocoes/${remocao.codigo}`} className="font-medium text-azul-petroleo hover:underline">
                       Detalhar

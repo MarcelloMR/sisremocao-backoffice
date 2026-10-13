@@ -27,7 +27,7 @@ export function Topbar({ aoAbrirMenu }) {
         onClick={aoAbrirMenu}
         aria-label="Abrir menu"
         aria-controls="menu-lateral"
-        className="flex size-10 shrink-0 items-center justify-center rounded-lg text-text-principal transition-colors hover:bg-bg-app lg:hidden"
+        className="flex size-10 shrink-0 items-center justify-center rounded-lg text-text-principal transition-colors hover:bg-bg-app xl:hidden"
       >
         <Menu className="size-6" strokeWidth={2} aria-hidden="true" />
       </button>

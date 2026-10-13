@@ -33,7 +33,7 @@ function ItemComSubmenu({ rotulo, Icone, subitens }) {
               key={caminho}
               to={caminho}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? LINK_ATIVO : LINK_INATIVO}`
+                `rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? LINK_ATIVO : LINK_INATIVO}`
               }
             >
               {subRotulo}
@@ -67,10 +67,10 @@ export function Sidebar({ aberto = false, aoFechar }) {
 
   return (
     <>
-      {aberto && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={aoFechar} aria-hidden="true" />}
+      {aberto && <div className="fixed inset-0 z-30 bg-black/50 xl:hidden" onClick={aoFechar} aria-hidden="true" />}
     <aside
       id="menu-lateral"
-      className={`fixed inset-y-0 left-0 z-40 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col overflow-y-auto bg-chumbo transition-[translate,visibility] duration-200 lg:visible lg:static lg:z-auto lg:w-64 lg:max-w-none lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-40 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col overflow-y-auto bg-chumbo transition-[translate,visibility] duration-200 xl:visible xl:static xl:z-auto xl:w-64 xl:max-w-none xl:translate-x-0 ${
         aberto ? 'visible translate-x-0' : 'invisible -translate-x-full'
       }`}
     >
@@ -78,7 +78,7 @@ export function Sidebar({ aberto = false, aoFechar }) {
         type="button"
         onClick={aoFechar}
         aria-label="Fechar menu"
-        className="absolute top-4 right-3 flex size-10 items-center justify-center rounded-lg text-text-secundario transition-colors hover:bg-white/10 hover:text-white lg:hidden"
+        className="absolute top-4 right-3 flex size-10 items-center justify-center rounded-lg text-text-secundario transition-colors hover:bg-white/10 hover:text-white xl:hidden"
       >
         <X className="size-5" strokeWidth={2} aria-hidden="true" />
       </button>
