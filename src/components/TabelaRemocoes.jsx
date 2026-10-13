@@ -88,8 +88,8 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
 
       {erro && <p className="rounded-lg bg-vermelho/10 px-4 py-3 text-sm font-medium text-vermelho">{erro}</p>}
 
-      <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Código</th>

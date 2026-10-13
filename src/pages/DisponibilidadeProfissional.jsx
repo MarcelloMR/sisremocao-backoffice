@@ -105,8 +105,8 @@ export function DisponibilidadeProfissional() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="w-full min-w-[560px] text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Dia da semana</th>

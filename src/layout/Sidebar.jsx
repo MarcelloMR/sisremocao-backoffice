@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import { itensNavegacao } from './navegacao.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import icone from '../assets/logo/icone-256.png';
@@ -45,12 +45,44 @@ function ItemComSubmenu({ rotulo, Icone, subitens }) {
   );
 }
 
-export function Sidebar() {
+// Em telas largas (lg, 1024px+) fica fixa à esquerda, como sempre. Abaixo disso vira uma gaveta por
+// cima do conteúdo: `aberto` controla a exibição, e ela fecha pelo X, pelo fundo escuro ou por Esc.
+// Fechada no celular fica `invisible`, para os links não receberem foco de teclado/leitor de tela.
+export function Sidebar({ aberto = false, aoFechar }) {
   const { sessao } = useAuth();
   const itens = itensNavegacao(sessao?.usuario?.papeis, sessao?.usuario?.clienteTipo);
 
+  useEffect(() => {
+    if (!aberto) {
+      return undefined;
+    }
+    const aoTeclar = (evento) => {
+      if (evento.key === 'Escape') {
+        aoFechar?.();
+      }
+    };
+    document.addEventListener('keydown', aoTeclar);
+    return () => document.removeEventListener('keydown', aoTeclar);
+  }, [aberto, aoFechar]);
+
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col overflow-y-auto bg-chumbo">
+    <>
+      {aberto && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={aoFechar} aria-hidden="true" />}
+    <aside
+      id="menu-lateral"
+      className={`fixed inset-y-0 left-0 z-40 flex h-dvh w-72 max-w-[85vw] shrink-0 flex-col overflow-y-auto bg-chumbo transition-[translate,visibility] duration-200 lg:visible lg:static lg:z-auto lg:w-64 lg:max-w-none lg:translate-x-0 ${
+        aberto ? 'visible translate-x-0' : 'invisible -translate-x-full'
+      }`}
+    >
+      <button
+        type="button"
+        onClick={aoFechar}
+        aria-label="Fechar menu"
+        className="absolute top-4 right-3 flex size-10 items-center justify-center rounded-lg text-text-secundario transition-colors hover:bg-white/10 hover:text-white lg:hidden"
+      >
+        <X className="size-5" strokeWidth={2} aria-hidden="true" />
+      </button>
+
       <div className="flex items-center gap-3 px-6 py-6">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white p-1">
           <img src={icone} alt="" className="size-full object-contain" />
@@ -61,7 +93,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="mt-4 flex flex-col gap-1 px-3">
+      <nav className="mt-4 flex flex-col gap-1 px-3 pb-6">
         {itens.map((item) =>
           item.subitens ? (
             <ItemComSubmenu key={item.rotulo} {...item} />
@@ -79,5 +111,6 @@ export function Sidebar() {
         )}
       </nav>
     </aside>
+    </>
   );
 }

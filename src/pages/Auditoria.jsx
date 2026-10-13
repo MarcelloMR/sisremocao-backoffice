@@ -399,7 +399,7 @@ export function Auditoria() {
       </div>
 
       <div className="overflow-x-auto rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[820px] text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Data e hora</th>

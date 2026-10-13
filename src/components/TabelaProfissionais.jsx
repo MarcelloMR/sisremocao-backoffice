@@ -165,8 +165,8 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
         </p>
       )}
 
-      <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="w-full min-w-[920px] text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Nome</th>
