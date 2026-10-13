@@ -34,12 +34,14 @@ import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { AppLayout } from './layout/AppLayout.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 
+// Buscar profissionais: Admin e Regulador.
 function RotaProfissional({ children }) {
   return <ProtectedRoute papeisPermitidos={['Admin', 'Regulador']}>{children}</ProtectedRoute>;
 }
 
-// Só Admin inicia o convite de um novo profissional (Regulador não tem mais esse acesso).
-function RotaCadastrarProfissional({ children }) {
+// Gestão de profissionais (convidar, atualizar, remover, disponibilidade): só Admin. O Regulador
+// fica restrito à busca (decisão de produto de 2026-10-12).
+function RotaGestaoProfissional({ children }) {
   return <ProtectedRoute papeisPermitidos={['Admin']}>{children}</ProtectedRoute>;
 }
 
@@ -234,49 +236,49 @@ export default function App() {
         <Route
           path="/profissionais/novo"
           element={
-            <RotaCadastrarProfissional>
+            <RotaGestaoProfissional>
               <CadastroProfissional />
-            </RotaCadastrarProfissional>
+            </RotaGestaoProfissional>
           }
         />
         <Route
           path="/profissionais/atualizar"
           element={
-            <RotaProfissional>
+            <RotaGestaoProfissional>
               <SelecionarParaAtualizar />
-            </RotaProfissional>
+            </RotaGestaoProfissional>
           }
         />
         <Route
           path="/profissionais/:codigo/editar"
           element={
-            <RotaProfissional>
+            <RotaGestaoProfissional>
               <EditarProfissional />
-            </RotaProfissional>
+            </RotaGestaoProfissional>
           }
         />
         <Route
           path="/profissionais/remover"
           element={
-            <RotaProfissional>
+            <RotaGestaoProfissional>
               <SelecionarParaRemover />
-            </RotaProfissional>
+            </RotaGestaoProfissional>
           }
         />
         <Route
           path="/profissionais/:codigo/remover"
           element={
-            <RotaProfissional>
+            <RotaGestaoProfissional>
               <RemoverProfissional />
-            </RotaProfissional>
+            </RotaGestaoProfissional>
           }
         />
         <Route
           path="/profissionais/:codigo/disponibilidade"
           element={
-            <RotaProfissional>
+            <RotaGestaoProfissional>
               <DisponibilidadeProfissional />
-            </RotaProfissional>
+            </RotaGestaoProfissional>
           }
         />
       </Route>
