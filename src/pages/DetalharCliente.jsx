@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { RepresentantesCliente } from '../components/RepresentantesCliente.jsx';
+import { HistoricoAcoes } from '../components/HistoricoAcoes.jsx';
 
 function LinhaDetalhe({ rotulo, valor }) {
   return (
@@ -62,6 +63,8 @@ export function DetalharCliente() {
       <Link to={`/clientes/${codigo}/editar`} className="text-sm font-medium text-azul-petroleo hover:underline">
         Editar dados do cliente →
       </Link>
+
+      <HistoricoAcoes entidade="cliente" codigo={Number(codigo)} />
     </div>
   );
 }

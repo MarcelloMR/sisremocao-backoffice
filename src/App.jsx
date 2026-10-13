@@ -13,6 +13,7 @@ import { RemoverProfissional } from './pages/RemoverProfissional.jsx';
 import { DisponibilidadeProfissional } from './pages/DisponibilidadeProfissional.jsx';
 import { TrocarSenha } from './pages/TrocarSenha.jsx';
 import { EmConstrucao } from './pages/EmConstrucao.jsx';
+import { Auditoria } from './pages/Auditoria.jsx';
 import { BuscarAmbulancias } from './pages/BuscarAmbulancias.jsx';
 import { CadastroAmbulancia } from './pages/CadastroAmbulancia.jsx';
 import { SelecionarAmbulanciaParaAtualizar } from './pages/SelecionarAmbulanciaParaAtualizar.jsx';
@@ -98,6 +99,14 @@ export default function App() {
         <Route path="/relatorios" element={<EmConstrucao titulo="Relatórios" />} />
         <Route path="/escala" element={<EmConstrucao titulo="Escala" />} />
         <Route path="/historico" element={<EmConstrucao titulo="Histórico" />} />
+        <Route
+          path="/auditoria"
+          element={
+            <ProtectedRoute papeisPermitidos={['Admin']}>
+              <Auditoria />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/remocoes/nova"

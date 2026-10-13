@@ -4,6 +4,7 @@ import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { RastreadorStatusRemocao } from '../components/RastreadorStatusRemocao.jsx';
 import { STATUS_SEM_CANCELAMENTO, rotuloStatus } from '../constants/statusRemocao.js';
+import { HistoricoAcoes } from '../components/HistoricoAcoes.jsx';
 
 function LinhaDetalhe({ rotulo, valor }) {
   return (
@@ -264,6 +265,8 @@ export function DetalharRemocao() {
           )}
         </section>
       )}
+
+      <HistoricoAcoes entidade="remocao" codigo={Number(codigo)} />
     </div>
   );
 }

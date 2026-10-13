@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { HistoricoAcoes } from '../components/HistoricoAcoes.jsx';
 
 function LinhaDetalhe({ rotulo, valor }) {
   return (
@@ -68,6 +69,8 @@ export function DetalharAmbulancia() {
       <Link to={`/ambulancias/${codigo}/editar`} className="text-sm font-medium text-azul-petroleo hover:underline">
         Editar ambulância →
       </Link>
+
+      <HistoricoAcoes entidade="ambulancia" codigo={Number(codigo)} />
     </div>
   );
 }
