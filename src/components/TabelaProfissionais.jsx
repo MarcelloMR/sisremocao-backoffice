@@ -13,7 +13,8 @@ const ROTULO_PAPEL = { regulador: 'Regulador', admin: 'Admin' };
 // - mostrarEditar / mostrarRemover: quais ações aparecem por linha
 //
 // Só o Admin gere profissionais: as colunas Regulador e Admin (papéis que o profissional acumula) e
-// as ações Editar/Remover existem apenas para ele. Para o Regulador a tabela é só consulta, sem
+// as ações Editar/Remover/Reenviar convite existem apenas para ele. "Reenviar convite" aparece só
+// para quem ainda não fez o primeiro acesso (convitePendente), nas telas que mostram Editar. Para o Regulador a tabela é só consulta, sem
 // nenhuma indicação de quem tem papel administrativo — a API nem envia essa informação a ele.
 export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, mostrarRemover = true }) {
   const { sessao } = useAuth();
@@ -22,6 +23,8 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
   const exibirRemover = mostrarRemover && ehAdmin;
   const totalColunas = 3 + (ehAdmin ? 2 : 0) + (exibirEditar || exibirRemover ? 1 : 0);
   const [salvandoPapel, setSalvandoPapel] = useState(null);
+  const [reenviando, setReenviando] = useState(null);
+  const [aviso, setAviso] = useState(null);
   const [nome, setNome] = useState('');
   const [tipo, setTipo] = useState('');
   const [profissionais, setProfissionais] = useState([]);
@@ -79,6 +82,32 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
     }
   }
 
+  // Confirma antes: refazer o convite invalida o código e a senha temporária do convite anterior.
+  async function reenviarConvite(profissional) {
+    const nomeCompleto = `${profissional.dadosPessoais.nome} ${profissional.dadosPessoais.sobrenome}`;
+    const destino = profissional.dadosPessoais.email ? ` para ${profissional.dadosPessoais.email}` : '';
+    if (!window.confirm(`Reenviar o convite de acesso de ${nomeCompleto}${destino}?\n\nO código e a senha temporária do convite anterior deixam de valer.`)) {
+      return;
+    }
+
+    setErro(null);
+    setAviso(null);
+    setReenviando(profissional.codigo);
+    try {
+      const resposta = await requisitar(`/profissional/${profissional.codigo}/reenviar-convite`, { method: 'POST', token: sessao.token });
+      setProfissionais((atuais) => atuais.map((item) => (item.codigo === profissional.codigo ? { ...item, temConta: true } : item)));
+      if (resposta.emailEnviado) {
+        setAviso(`Convite reenviado para ${resposta.email}. O código e a senha anteriores deixaram de valer.`);
+      } else {
+        setErro(`O convite de ${nomeCompleto} foi refeito, mas o e-mail para ${resposta.email} não pôde ser enviado. Tente reenviar de novo em alguns minutos.`);
+      }
+    } catch (excecao) {
+      setErro(excecao.cause || excecao.message);
+    } finally {
+      setReenviando(null);
+    }
+  }
+
   function caixaPapel(profissional, papel, marcado) {
     return (
       <input
@@ -130,6 +159,11 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
       )}
 
       {erro && <p className="rounded-lg bg-vermelho/10 px-4 py-3 text-sm font-medium text-vermelho">{erro}</p>}
+      {aviso && (
+        <p role="status" className="rounded-lg bg-azul-petroleo/10 px-4 py-3 text-sm font-medium text-azul-petroleo">
+          {aviso}
+        </p>
+      )}
 
       <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
         <table className="w-full text-sm">
@@ -168,7 +202,17 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
                 {ehAdmin && <td className="px-5 py-3 text-center">{caixaPapel(profissional, 'admin', profissional.ehAdmin)}</td>}
                 {(exibirEditar || exibirRemover) && (
                   <td className="px-5 py-3">
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                      {exibirEditar && profissional.convitePendente && (
+                        <button
+                          type="button"
+                          onClick={() => reenviarConvite(profissional)}
+                          disabled={reenviando !== null}
+                          className="font-medium text-azul-petroleo hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {reenviando === profissional.codigo ? 'Enviando...' : 'Reenviar convite'}
+                        </button>
+                      )}
                       {exibirEditar && (
                         <Link to={`/profissionais/${profissional.codigo}/editar`} className="font-medium text-azul-petroleo hover:underline">
                           Editar
