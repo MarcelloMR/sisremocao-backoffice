@@ -48,7 +48,7 @@ export function TabelaAmbulancias({ comFiltros = true, mostrarDetalhar = true, m
             evento.preventDefault();
             buscar();
           }}
-          className="flex flex-wrap items-end gap-3 rounded-xl bg-bg-card p-4 shadow-sm"
+          className="grid grid-cols-1 gap-3 rounded-xl bg-bg-card p-4 shadow-sm sm:flex sm:flex-wrap sm:items-end"
         >
           <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
             Status
@@ -83,8 +83,8 @@ export function TabelaAmbulancias({ comFiltros = true, mostrarDetalhar = true, m
 
       {erro && <p className="rounded-lg bg-vermelho/10 px-4 py-3 text-sm font-medium text-vermelho">{erro}</p>}
 
-      <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="tabela-cartoes-moldura overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="tabela-cartoes w-full text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Nº identificação</th>
@@ -96,7 +96,7 @@ export function TabelaAmbulancias({ comFiltros = true, mostrarDetalhar = true, m
           </thead>
           <tbody>
             {!carregando && ambulancias.length === 0 && (
-              <tr>
+              <tr className="linha-vazia">
                 <td colSpan={5} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhuma ambulância encontrada.
                 </td>
@@ -104,12 +104,12 @@ export function TabelaAmbulancias({ comFiltros = true, mostrarDetalhar = true, m
             )}
             {ambulancias.map((ambulancia) => (
               <tr key={ambulancia.codigo} className="border-t border-text-secundario/10">
-                <td className="px-5 py-3 font-medium text-text-principal">{ambulancia.numeroIdentificacao ?? '—'}</td>
-                <td className="px-5 py-3 text-text-principal">{ambulancia.placaIdentificador}</td>
-                <td className="px-5 py-3 text-text-principal">{ambulancia.modelo}</td>
-                <td className="px-5 py-3 text-text-secundario">{ambulancia.status.replace('_', ' ')}</td>
+                <td data-rotulo="Nº identificação" className="px-5 py-3 font-medium text-text-principal">{ambulancia.numeroIdentificacao ?? '—'}</td>
+                <td className="celula-titulo px-5 py-3 text-text-principal">{ambulancia.placaIdentificador}</td>
+                <td data-rotulo="Modelo" className="px-5 py-3 text-text-principal">{ambulancia.modelo}</td>
+                <td data-rotulo="Status" className="px-5 py-3 text-text-secundario">{ambulancia.status.replace('_', ' ')}</td>
                 {mostrarAcoes && (
-                  <td className="px-5 py-3">
+                  <td className="celula-acoes px-5 py-3">
                     <div className="flex gap-3">
                       {mostrarDetalhar && (
                         <Link to={`/ambulancias/${ambulancia.codigo}`} className="font-medium text-azul-petroleo hover:underline">

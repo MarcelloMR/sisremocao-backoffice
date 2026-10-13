@@ -163,19 +163,30 @@ export function AlocarEquipeAmbulanciaFormulario({
         <h2 className="text-sm font-bold text-chumbo uppercase tracking-wide">
           Equipe (motorista + técnico em enfermagem ou enfermeiro obrigatórios)
         </h2>
-        <div className="flex flex-col gap-2">
-          {profissionais.map((profissional) => (
-            <label key={profissional.codigo} className="flex items-center gap-2 text-sm text-text-principal">
-              <input
-                type="checkbox"
-                checked={equipeSelecionada.includes(profissional.codigo)}
-                onChange={() => alternarProfissional(profissional.codigo)}
-                disabled={equipeJaAlocada}
-                className="size-4"
-              />
-              {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome} — {profissional.tipo.replace('_', ' ')}
-            </label>
-          ))}
+        {/* Profissional convidado que ainda não completou o cadastro não tem `tipo` (vem null): aparece
+            na lista, mas não pode entrar na equipe — a composição mínima é conferida pelo tipo. */}
+        <div className="flex flex-col">
+          {profissionais.map((profissional) => {
+            const cadastroPendente = !profissional.tipo;
+            return (
+              <label
+                key={profissional.codigo}
+                className={`flex min-h-11 items-center gap-3 py-1 text-sm ${cadastroPendente ? 'text-text-secundario' : 'text-text-principal'}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={equipeSelecionada.includes(profissional.codigo)}
+                  onChange={() => alternarProfissional(profissional.codigo)}
+                  disabled={equipeJaAlocada || cadastroPendente}
+                  className="size-5 shrink-0 disabled:cursor-not-allowed"
+                />
+                <span>
+                  {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome} —{' '}
+                  {cadastroPendente ? <span className="italic">cadastro pendente</span> : profissional.tipo.replace('_', ' ')}
+                </span>
+              </label>
+            );
+          })}
         </div>
 
         {equipeJaAlocada && (
@@ -188,7 +199,7 @@ export function AlocarEquipeAmbulanciaFormulario({
             <ul className="list-disc pl-5">
               {conflitos.map((item) => (
                 <li key={item.codigo}>
-                  {item.nome} ({item.tipo.replace('_', ' ')})
+                  {item.nome} ({item.tipo ? item.tipo.replace('_', ' ') : 'cadastro pendente'})
                 </li>
               ))}
             </ul>

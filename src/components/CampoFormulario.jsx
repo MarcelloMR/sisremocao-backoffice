@@ -1,5 +1,5 @@
 export const CAMPO_CLASSES =
-  'rounded-lg border border-text-secundario/30 px-3 py-2 text-sm font-normal text-text-principal outline-none focus:border-azul-petroleo focus:ring-1 focus:ring-azul-petroleo disabled:cursor-not-allowed disabled:opacity-50';
+  'rounded-lg border border-text-secundario/30 px-3 py-2 text-base font-normal text-text-principal sm:text-sm outline-none focus:border-azul-petroleo focus:ring-1 focus:ring-azul-petroleo disabled:cursor-not-allowed disabled:opacity-50';
 
 // Padrão do sistema para o nome de um campo: o asterisco vermelho de obrigatório fica na mesma
 // linha, logo depois do nome. Fica num <span> próprio porque o <label> que o envolve costuma ser

@@ -41,7 +41,7 @@ export function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="rounded-lg border border-text-secundario/30 px-3 py-2 text-sm font-normal outline-none focus:border-azul-petroleo focus:ring-1 focus:ring-azul-petroleo"
+              className="rounded-lg border border-text-secundario/30 px-3 py-2 text-base font-normal outline-none sm:text-sm focus:border-azul-petroleo focus:ring-1 focus:ring-azul-petroleo"
             />
           </label>
 
@@ -52,7 +52,7 @@ export function Login() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               required
-              className="rounded-lg border border-text-secundario/30 px-3 py-2 text-sm font-normal outline-none focus:border-azul-petroleo focus:ring-1 focus:ring-azul-petroleo"
+              className="rounded-lg border border-text-secundario/30 px-3 py-2 text-base font-normal outline-none sm:text-sm focus:border-azul-petroleo focus:ring-1 focus:ring-azul-petroleo"
             />
           </label>
 

@@ -130,7 +130,7 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
             evento.preventDefault();
             buscar();
           }}
-          className="flex flex-wrap items-end gap-3 rounded-xl bg-bg-card p-4 shadow-sm"
+          className="grid grid-cols-1 gap-3 rounded-xl bg-bg-card p-4 shadow-sm sm:flex sm:flex-wrap sm:items-end"
         >
           <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
             Nome
@@ -165,8 +165,8 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
         </p>
       )}
 
-      <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="tabela-cartoes-moldura overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="tabela-cartoes w-full text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Nome</th>
@@ -179,7 +179,7 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
           </thead>
           <tbody>
             {!carregando && profissionais.length === 0 && (
-              <tr>
+              <tr className="linha-vazia">
                 <td colSpan={totalColunas} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhum profissional encontrado.
                 </td>
@@ -187,22 +187,22 @@ export function TabelaProfissionais({ comFiltros = true, mostrarEditar = true, m
             )}
             {profissionais.map((profissional) => (
               <tr key={profissional.codigo} className="border-t border-text-secundario/10">
-                <td className="px-5 py-3 font-medium text-text-principal">
+                <td className="celula-titulo px-5 py-3 font-medium text-text-principal">
                   {profissional.dadosPessoais.nome} {profissional.dadosPessoais.sobrenome}
                 </td>
-                <td className="px-5 py-3 text-text-principal">
+                <td data-rotulo="Tipo" className="px-5 py-3 text-text-principal">
                   {profissional.tipo ? (
                     profissional.tipo.replace('_', ' ')
                   ) : (
                     <span className="italic text-text-secundario">Cadastro pendente</span>
                   )}
                 </td>
-                <td className="px-5 py-3 text-text-secundario">{profissional.dadosPessoais.email || '—'}</td>
-                {ehAdmin && <td className="px-5 py-3 text-center">{caixaPapel(profissional, 'regulador', profissional.ehRegulador)}</td>}
-                {ehAdmin && <td className="px-5 py-3 text-center">{caixaPapel(profissional, 'admin', profissional.ehAdmin)}</td>}
+                <td data-rotulo="E-mail" className="px-5 py-3 text-text-secundario">{profissional.dadosPessoais.email || '—'}</td>
+                {ehAdmin && <td data-rotulo="Regulador" className="px-5 py-3 text-center">{caixaPapel(profissional, 'regulador', profissional.ehRegulador)}</td>}
+                {ehAdmin && <td data-rotulo="Admin" className="px-5 py-3 text-center">{caixaPapel(profissional, 'admin', profissional.ehAdmin)}</td>}
                 {(exibirEditar || exibirRemover) && (
-                  <td className="px-5 py-3">
-                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                  <td className="celula-acoes px-5 py-3">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 lg:flex-nowrap">
                       {exibirEditar && profissional.convitePendente && (
                         <button
                           type="button"

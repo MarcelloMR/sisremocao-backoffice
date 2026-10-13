@@ -41,7 +41,7 @@ export function GraficoDemanda() {
     <section className="rounded-xl bg-bg-card p-6 shadow-sm">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-sm font-bold text-chumbo uppercase tracking-wide">Demanda de remoções</h2>
-        <div className="flex flex-wrap items-end gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-end">
           <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
             De
             <input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className={CAMPO_CLASSES} />

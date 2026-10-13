@@ -105,8 +105,8 @@ export function DisponibilidadeProfissional() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="tabela-cartoes-moldura overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="tabela-cartoes w-full text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Dia da semana</th>
@@ -118,8 +118,8 @@ export function DisponibilidadeProfissional() {
           <tbody>
             {DIAS_SEMANA.map(({ valor, rotulo }) => (
               <tr key={valor} className="border-t border-text-secundario/10">
-                <td className="px-5 py-3 font-medium text-text-principal">{rotulo}</td>
-                <td className="px-5 py-3">
+                <td className="celula-titulo px-5 py-3 font-medium text-text-principal">{rotulo}</td>
+                <td data-rotulo="Indisponível" className="px-5 py-3">
                   <input
                     type="checkbox"
                     checked={grade[valor].ativo}
@@ -127,7 +127,7 @@ export function DisponibilidadeProfissional() {
                     className="size-4 accent-azul-petroleo"
                   />
                 </td>
-                <td className="px-5 py-3">
+                <td data-rotulo="Início" className="px-5 py-3">
                   <input
                     type="time"
                     value={grade[valor].horaInicio}
@@ -136,7 +136,7 @@ export function DisponibilidadeProfissional() {
                     className="rounded-lg border border-text-secundario/30 px-2 py-1.5 text-sm outline-none focus:border-azul-petroleo focus:ring-1 focus:ring-azul-petroleo disabled:cursor-not-allowed disabled:opacity-40"
                   />
                 </td>
-                <td className="px-5 py-3">
+                <td data-rotulo="Fim" className="px-5 py-3">
                   <input
                     type="time"
                     value={grade[valor].horaFim}

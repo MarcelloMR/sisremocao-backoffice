@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
 import { AvisoLoginModal } from '../components/AvisoLoginModal.jsx';
@@ -9,6 +9,14 @@ import { useAuth } from '../context/AuthContext.jsx';
 export function AppLayout() {
   const { sessao } = useAuth();
   const [aviso, setAviso] = useState(null);
+  // Abaixo de 1280px o menu lateral vira uma gaveta, aberta pelo botão da barra superior.
+  const [menuAberto, setMenuAberto] = useState(false);
+  const { pathname } = useLocation();
+
+  // Navegou para outra tela: a gaveta fecha sozinha.
+  useEffect(() => {
+    setMenuAberto(false);
+  }, [pathname]);
 
   useEffect(() => {
     const papeis = sessao?.usuario?.papeis || [];
@@ -50,11 +58,11 @@ export function AppLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-bg-app">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-y-auto p-8">
+    <div className="flex h-dvh bg-bg-app">
+      <Sidebar aberto={menuAberto} aoFechar={() => setMenuAberto(false)} />
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <Topbar aoAbrirMenu={() => setMenuAberto(true)} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>

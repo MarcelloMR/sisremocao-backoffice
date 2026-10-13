@@ -41,7 +41,7 @@ export function TabelaClientes({ comFiltros = true }) {
             evento.preventDefault();
             buscar();
           }}
-          className="flex flex-wrap items-end gap-3 rounded-xl bg-bg-card p-4 shadow-sm"
+          className="grid grid-cols-1 gap-3 rounded-xl bg-bg-card p-4 shadow-sm sm:flex sm:flex-wrap sm:items-end"
         >
           <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
             UF
@@ -59,8 +59,8 @@ export function TabelaClientes({ comFiltros = true }) {
 
       {erro && <p className="rounded-lg bg-vermelho/10 px-4 py-3 text-sm font-medium text-vermelho">{erro}</p>}
 
-      <div className="overflow-hidden rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="tabela-cartoes-moldura overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="tabela-cartoes w-full text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Nome fantasia</th>
@@ -71,7 +71,7 @@ export function TabelaClientes({ comFiltros = true }) {
           </thead>
           <tbody>
             {!carregando && clientes.length === 0 && (
-              <tr>
+              <tr className="linha-vazia">
                 <td colSpan={4} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhum cliente encontrado.
                 </td>
@@ -79,10 +79,10 @@ export function TabelaClientes({ comFiltros = true }) {
             )}
             {clientes.map((cliente) => (
               <tr key={cliente.codigo} className="border-t border-text-secundario/10">
-                <td className="px-5 py-3 font-medium text-text-principal">{cliente.nomeFantasia}</td>
-                <td className="px-5 py-3 text-text-secundario">{cliente.cnpj || '—'}</td>
-                <td className="px-5 py-3 text-text-secundario">{cliente.uf || '—'}</td>
-                <td className="px-5 py-3">
+                <td className="celula-titulo px-5 py-3 font-medium text-text-principal">{cliente.nomeFantasia}</td>
+                <td data-rotulo="CNPJ" className="px-5 py-3 text-text-secundario">{cliente.cnpj || '—'}</td>
+                <td data-rotulo="UF" className="px-5 py-3 text-text-secundario">{cliente.uf || '—'}</td>
+                <td className="celula-acoes px-5 py-3">
                   <Link to={`/clientes/${cliente.codigo}`} className="font-medium text-azul-petroleo hover:underline">
                     Detalhar
                   </Link>

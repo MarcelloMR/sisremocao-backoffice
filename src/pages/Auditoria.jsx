@@ -398,8 +398,8 @@ export function Auditoria() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl bg-bg-card shadow-sm">
-        <table className="w-full text-sm">
+      <div className="tabela-cartoes-moldura overflow-x-auto rounded-xl bg-bg-card shadow-sm">
+        <table className="tabela-cartoes coluna-unica w-full text-sm">
           <thead>
             <tr className="bg-azul-petroleo text-left text-white">
               <th className="px-5 py-3 font-bold">Data e hora</th>
@@ -414,7 +414,7 @@ export function Auditoria() {
           </thead>
           <tbody>
             {!carregando && resposta?.itens.length === 0 && (
-              <tr>
+              <tr className="linha-vazia">
                 <td colSpan={6} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhum registro encontrado com esses filtros.
                 </td>
@@ -423,8 +423,8 @@ export function Auditoria() {
             {resposta?.itens.map((item) => (
               <Fragment key={item.codigo}>
                 <tr className="border-t border-text-secundario/10 align-top">
-                  <td className="px-5 py-3 whitespace-nowrap tabular-nums text-text-principal">{formatarDataHora(item.ocorridoEm)}</td>
-                  <td className="px-5 py-3">
+                  <td data-rotulo="Data e hora" className="px-5 py-3 whitespace-nowrap tabular-nums text-text-principal">{formatarDataHora(item.ocorridoEm)}</td>
+                  <td data-rotulo="Usuário" className="px-5 py-3">
                     {item.usuario.email ? (
                       <button
                         type="button"
@@ -439,8 +439,8 @@ export function Auditoria() {
                     )}
                     {item.usuario.papeis?.length > 0 && <div className="text-xs text-text-secundario">{item.usuario.papeis.join(', ')}</div>}
                   </td>
-                  <td className="px-5 py-3 font-medium text-text-principal">{item.descricao}</td>
-                  <td className="px-5 py-3">
+                  <td className="celula-titulo px-5 py-3 font-medium text-text-principal">{item.descricao}</td>
+                  <td data-rotulo="Registro" className="px-5 py-3">
                     {item.entidade && item.entidadeCodigo != null ? (
                       <button
                         type="button"
@@ -454,10 +454,10 @@ export function Auditoria() {
                       <span className="text-text-secundario">{descreverRegistro(item)}</span>
                     )}
                   </td>
-                  <td className="px-5 py-3 whitespace-nowrap">
+                  <td data-rotulo="Resultado" className="px-5 py-3 whitespace-nowrap">
                     <ResultadoAuditoria item={item} />
                   </td>
-                  <td className="px-5 py-3 text-right">
+                  <td className="celula-acoes px-5 py-3 text-right">
                     <button
                       type="button"
                       onClick={() => setAberto(aberto === item.codigo ? null : item.codigo)}
@@ -465,12 +465,13 @@ export function Auditoria() {
                       aria-label={`${aberto === item.codigo ? 'Ocultar' : 'Mostrar'} detalhes: ${item.descricao}, ${formatarDataHora(item.ocorridoEm)}`}
                       className="rounded-lg p-1.5 text-text-secundario transition-colors hover:bg-bg-app hover:text-text-principal"
                     >
+                      <span className="lg:hidden">{aberto === item.codigo ? 'Ocultar detalhes' : 'Ver detalhes'}</span>
                       <ChevronDown className={`size-4 transition-transform ${aberto === item.codigo ? 'rotate-180' : ''}`} aria-hidden="true" />
                     </button>
                   </td>
                 </tr>
                 {aberto === item.codigo && (
-                  <tr className="bg-bg-app/60">
+                  <tr className="linha-detalhe bg-bg-app/60">
                     <td colSpan={6} className="px-5 py-4">
                       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <Detalhe rotulo="Resultado" valor={descreverResultado(item)} />
