@@ -7,7 +7,8 @@ import { Campo, CAMPO_CLASSES } from '../components/CampoFormulario.jsx';
 import { ResultadoAuditoria } from '../components/ResultadoAuditoria.jsx';
 import { descreverRegistro, descreverResultado, formatarDataHora, rotuloEntidade } from '../components/auditoriaFormato.js';
 
-const POR_PAGINA = 50;
+const OPCOES_POR_PAGINA = [20, 50];
+const POR_PAGINA_PADRAO = 20;
 const POR_PAGINA_EXPORTACAO = 200;
 const MAXIMO_EXPORTACAO = 10000;
 
@@ -63,12 +64,15 @@ function montarConsulta(filtros, pagina, limite) {
 
 // Só os filtros que fogem do padrão vão para a URL — assim o endereço fica curto e dá para
 // compartilhar ou recarregar uma consulta (e as telas de detalhe conseguem apontar para cá).
-function filtrosParaUrl(filtros) {
+function parametrosParaUrl(filtros, porPagina) {
   const parametros = {};
   for (const [campo, valor] of Object.entries(filtros)) {
     if (valor && valor !== FILTROS_PADRAO[campo]) {
       parametros[campo] = valor;
     }
+  }
+  if (porPagina !== POR_PAGINA_PADRAO) {
+    parametros.linhas = String(porPagina);
   }
   return parametros;
 }
@@ -113,6 +117,61 @@ function Detalhe({ rotulo, valor }) {
   );
 }
 
+// Controles de página, repetidos acima e abaixo da tabela (quem rolou até o fim não precisa voltar
+// ao topo para avançar). `idSeletor` distingue os dois seletores de "linhas por página" para o rótulo.
+function Paginacao({ idSeletor, pagina, totalPaginas, total, porPagina, carregando, aoMudarPagina, aoMudarPorPagina }) {
+  const primeiro = total === 0 ? 0 : (pagina - 1) * porPagina + 1;
+  const ultimo = Math.min(pagina * porPagina, total);
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-text-principal">
+      <label htmlFor={idSeletor} className="flex items-center gap-2">
+        Linhas por página
+        <select
+          id={idSeletor}
+          value={porPagina}
+          onChange={(evento) => aoMudarPorPagina(Number(evento.target.value))}
+          className={`${CAMPO_CLASSES} py-1.5`}
+        >
+          {OPCOES_POR_PAGINA.map((opcao) => (
+            <option key={opcao} value={opcao}>
+              {opcao}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <span className="tabular-nums text-text-secundario">
+        {primeiro.toLocaleString('pt-BR')}–{ultimo.toLocaleString('pt-BR')} de {total.toLocaleString('pt-BR')}
+      </span>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => aoMudarPagina(pagina - 1)}
+          disabled={pagina <= 1 || carregando}
+          className="flex items-center gap-1 rounded-lg border border-text-secundario/30 px-3 py-1.5 transition-colors hover:bg-bg-card disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <ChevronLeft className="size-4" aria-hidden="true" />
+          Anterior
+        </button>
+        <span className="tabular-nums">
+          Página {pagina} de {totalPaginas}
+        </span>
+        <button
+          type="button"
+          onClick={() => aoMudarPagina(pagina + 1)}
+          disabled={pagina >= totalPaginas || carregando}
+          className="flex items-center gap-1 rounded-lg border border-text-secundario/30 px-3 py-1.5 transition-colors hover:bg-bg-card disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Próxima
+          <ChevronRight className="size-4" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Tela de consulta da trilha de auditoria (só Admin). Só leitura: não há como alterar ou apagar um
 // registro por aqui — a única saída de dados é a exportação do que foi filtrado.
 export function Auditoria() {
@@ -123,6 +182,8 @@ export function Auditoria() {
   const [filtros, setFiltros] = useState(filtrosIniciais);
   const [aplicados, setAplicados] = useState(filtrosIniciais);
   const [pagina, setPagina] = useState(1);
+  const linhasNaUrl = Number(parametrosUrl.get('linhas'));
+  const [porPagina, setPorPagina] = useState(OPCOES_POR_PAGINA.includes(linhasNaUrl) ? linhasNaUrl : POR_PAGINA_PADRAO);
   const [acoes, setAcoes] = useState([]);
   const [resposta, setResposta] = useState(null);
   const [carregando, setCarregando] = useState(true);
@@ -141,7 +202,7 @@ export function Auditoria() {
     let cancelado = false;
     setCarregando(true);
     setErro(null);
-    requisitar(montarConsulta(aplicados, pagina, POR_PAGINA), { token: sessao.token })
+    requisitar(montarConsulta(aplicados, pagina, porPagina), { token: sessao.token })
       .then((dados) => {
         if (!cancelado) {
           setResposta(dados);
@@ -161,14 +222,21 @@ export function Auditoria() {
     return () => {
       cancelado = true;
     };
-  }, [aplicados, pagina, sessao.token]);
+  }, [aplicados, pagina, porPagina, sessao.token]);
 
   function aplicar(novosFiltros) {
     setFiltros(novosFiltros);
     setAplicados(novosFiltros);
     setPagina(1);
     setAviso(null);
-    setParametrosUrl(filtrosParaUrl(novosFiltros), { replace: true });
+    setParametrosUrl(parametrosParaUrl(novosFiltros, porPagina), { replace: true });
+  }
+
+  // Trocar o tamanho da página volta para a primeira: a posição antiga deixa de fazer sentido.
+  function mudarPorPagina(novoTamanho) {
+    setPorPagina(novoTamanho);
+    setPagina(1);
+    setParametrosUrl(parametrosParaUrl(aplicados, novoTamanho), { replace: true });
   }
 
   function atualizarCampo(campo) {
@@ -202,7 +270,8 @@ export function Auditoria() {
   }
 
   const total = resposta?.total ?? 0;
-  const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+  const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
+  const paginacao = { pagina, totalPaginas, total, porPagina, carregando, aoMudarPagina: setPagina, aoMudarPorPagina: mudarPorPagina };
   const entidades = [...new Set(acoes.map((acao) => acao.entidade).filter(Boolean))].sort((a, b) =>
     rotuloEntidade(a).localeCompare(rotuloEntidade(b), 'pt-BR')
   );
@@ -325,29 +394,7 @@ export function Auditoria() {
             {exportando ? 'Exportando...' : 'Exportar CSV'}
           </button>
 
-          <div className="flex items-center gap-2 text-sm font-medium text-text-principal">
-            <button
-              type="button"
-              onClick={() => setPagina((atual) => atual - 1)}
-              disabled={pagina <= 1 || carregando}
-              aria-label="Página anterior"
-              className="rounded-lg p-1.5 transition-colors hover:bg-bg-card disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <ChevronLeft className="size-4" aria-hidden="true" />
-            </button>
-            <span className="tabular-nums">
-              {pagina} de {totalPaginas}
-            </span>
-            <button
-              type="button"
-              onClick={() => setPagina((atual) => atual + 1)}
-              disabled={pagina >= totalPaginas || carregando}
-              aria-label="Próxima página"
-              className="rounded-lg p-1.5 transition-colors hover:bg-bg-card disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <ChevronRight className="size-4" aria-hidden="true" />
-            </button>
-          </div>
+          <Paginacao idSeletor="linhas-por-pagina-topo" {...paginacao} />
         </div>
       </div>
 
@@ -442,6 +489,12 @@ export function Auditoria() {
           </tbody>
         </table>
       </div>
+
+      {total > 0 && (
+        <div className="flex justify-end">
+          <Paginacao idSeletor="linhas-por-pagina-rodape" {...paginacao} />
+        </div>
+      )}
     </div>
   );
 }
