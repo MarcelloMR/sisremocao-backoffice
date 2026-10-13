@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth, lerAvisoLogin } from '../context/AuthContext.jsx';
 import lockup from '../assets/logo/lockup-horizontal.png';
 
 export function Login() {
@@ -10,6 +10,8 @@ export function Login() {
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState(null);
   const [carregando, setCarregando] = useState(false);
+  // Motivo de ter vindo parar aqui (ex: sessão expirada); lido uma vez, ao abrir a tela.
+  const [aviso] = useState(lerAvisoLogin);
 
   async function aoSubmeter(evento) {
     evento.preventDefault();
@@ -34,6 +36,12 @@ export function Login() {
         </div>
 
         <div className="flex flex-col gap-4">
+          {aviso && (
+            <p role="status" className="rounded-lg bg-azul-petroleo/10 px-4 py-3 text-sm font-medium text-azul-petroleo">
+              {aviso}
+            </p>
+          )}
+
           <label className="flex flex-col gap-1.5 text-sm font-medium text-text-principal">
             E-mail
             <input
