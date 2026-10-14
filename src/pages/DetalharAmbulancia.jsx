@@ -61,6 +61,7 @@ export function DetalharAmbulancia() {
           <LinhaDetalhe rotulo="Ano modelo" valor={carro.anoModelo} />
           <LinhaDetalhe rotulo="Ano de aquisição" valor={carro.anoAquisicao} />
           <LinhaDetalhe rotulo="Quilometragem" valor={carro.quilometragemMarcador} />
+          <LinhaDetalhe rotulo="Próxima revisão (km)" valor={carro.proximaRevisaoKm} />
           <LinhaDetalhe rotulo="Placa" valor={carro.placaIdentificador} />
           <LinhaDetalhe rotulo="Chassi" valor={carro.chassi} />
         </div>

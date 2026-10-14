@@ -14,6 +14,7 @@ const FORM_VAZIO = {
   anoModelo: '',
   anoAquisicao: '',
   quilometragemMarcador: '',
+  proximaRevisaoKm: '',
   placaIdentificador: '',
   chassi: '',
   estadoSigla: '',
@@ -33,6 +34,7 @@ export function montarPayloadAmbulancia(form, { edicao = false } = {}) {
       anoModelo: form.anoModelo ? Number(form.anoModelo) : undefined,
       anoAquisicao: form.anoAquisicao ? Number(form.anoAquisicao) : undefined,
       quilometragemMarcador: form.quilometragemMarcador ? Number(form.quilometragemMarcador) : undefined,
+      proximaRevisaoKm: form.proximaRevisaoKm ? Number(form.proximaRevisaoKm) : undefined,
       placaIdentificador: form.placaIdentificador ? form.placaIdentificador.toUpperCase() : undefined,
       chassi: form.chassi || undefined,
       municipio: form.municipioCodigo ? { codigo: Number(form.municipioCodigo) } : undefined,
@@ -150,6 +152,17 @@ export function AmbulanciaFormulario({ valoresIniciais, rotuloBotao, enviar, aoS
 
         <Campo rotulo="Quilometragem">
           <input value={form.quilometragemMarcador} onChange={atualizarCampo('quilometragemMarcador')} className={CAMPO_CLASSES} />
+        </Campo>
+
+        <Campo rotulo="Próxima revisão (km)">
+          <input
+            value={form.proximaRevisaoKm}
+            onChange={atualizarCampo('proximaRevisaoKm')}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder="Odômetro em que vence a revisão"
+            className={CAMPO_CLASSES}
+          />
         </Campo>
 
         <Campo rotulo="Placa" obrigatorio>

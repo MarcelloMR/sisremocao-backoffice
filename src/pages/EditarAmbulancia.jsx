@@ -16,6 +16,7 @@ function paraValoresIniciais(ambulancia) {
     anoModelo: carro.anoModelo ?? '',
     anoAquisicao: carro.anoAquisicao ?? '',
     quilometragemMarcador: carro.quilometragemMarcador ?? '',
+    proximaRevisaoKm: carro.proximaRevisaoKm ?? '',
     placaIdentificador: carro.placaIdentificador || '',
     chassi: carro.chassi || '',
     estadoSigla: '',
