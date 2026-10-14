@@ -1,4 +1,4 @@
-import { Home, Ambulance, CalendarClock, History, Users, Truck, Building2, ShieldCheck } from 'lucide-react';
+import { Home, Ambulance, CalendarClock, History, Users, Truck, Building2, ShieldCheck, ChartColumn } from 'lucide-react';
 
 // Quem solicita remoção: Cliente (para si) ou Regulador (pedido recebido por telefone). Admin não solicita.
 // Monta os itens de cada papel presente em `papeis` e faz a união, sem duplicar por caminho — uma
@@ -71,8 +71,9 @@ export function itensNavegacao(papeis = [], clienteTipo = null) {
     itens.push({ rotulo: 'Escala', caminho: '/escala', Icone: CalendarClock });
     itens.push({ rotulo: 'Histórico', caminho: '/historico', Icone: History });
   }
-  // Trilha de auditoria (quem fez o quê): só o Admin consulta.
+  // Relatórios e trilha de auditoria (quem fez o quê): só o Admin consulta.
   if (eh('Admin')) {
+    itens.push({ rotulo: 'Relatórios', caminho: '/relatorios', Icone: ChartColumn });
     itens.push({ rotulo: 'Auditoria', caminho: '/auditoria', Icone: ShieldCheck });
   }
 

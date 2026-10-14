@@ -2,9 +2,10 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Menu, Plus, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
+// Relatórios é só do Admin — para os demais papéis o atalho nem aparece.
 const LINKS_DISCRETOS = [
   { rotulo: 'Visão Geral', caminho: '/' },
-  { rotulo: 'Relatórios', caminho: '/relatorios' },
+  { rotulo: 'Relatórios', caminho: '/relatorios', papeis: ['Admin'] },
 ];
 
 // Quem pode solicitar remoção: Cliente (para si) ou Regulador (pedido recebido por telefone).
@@ -34,7 +35,7 @@ export function Topbar({ aoAbrirMenu }) {
 
       {/* Os atalhos da barra somem no celular: o menu lateral já leva às mesmas telas. */}
       <nav className="hidden items-center gap-6 md:flex">
-        {LINKS_DISCRETOS.map(({ rotulo, caminho }) => (
+        {LINKS_DISCRETOS.filter(({ papeis }) => !papeis || sessao?.usuario?.papeis?.some((papel) => papeis.includes(papel))).map(({ rotulo, caminho }) => (
           <NavLink
             key={caminho}
             to={caminho}
