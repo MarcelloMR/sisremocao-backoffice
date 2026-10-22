@@ -3,6 +3,7 @@ import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Campo, Secao, CAMPO_CLASSES } from './CampoFormulario.jsx';
 import { BuscaEndereco } from './BuscaEndereco.jsx';
+import { agoraParaCampo, deCampoDataHora } from './agendamentoFormato.js';
 
 const TIPOS_REMOCAO = ['Privada', 'Contrato'];
 
@@ -12,6 +13,8 @@ const FORM_VAZIO = {
   representanteCodigo: '',
   clienteAnonimoNome: '',
   clienteAnonimoTelefone: '',
+  agendada: false,
+  chegadaDestinoDesejada: '',
 };
 
 async function criarEndereco(sugestao, token) {
@@ -74,6 +77,11 @@ export function RemocaoFormulario({ enviar, aoSucesso }) {
       return;
     }
 
+    if (form.agendada && new Date(form.chegadaDestinoDesejada) <= new Date()) {
+      setErro('A chegada no destino precisa ser uma data e hora futura.');
+      return;
+    }
+
     setEnviando(true);
     try {
       const [enderecoOrigem, enderecoDestino] = await Promise.all([
@@ -86,6 +94,7 @@ export function RemocaoFormulario({ enviar, aoSucesso }) {
         tipo: form.tipo,
         origem: { endereco: { codigo: enderecoOrigem.codigo } },
         destino: { endereco: { codigo: enderecoDestino.codigo } },
+        chegadaDestinoDesejada: form.agendada ? deCampoDataHora(form.chegadaDestinoDesejada) : null,
       };
 
       if (!ehCliente) {
@@ -183,6 +192,46 @@ export function RemocaoFormulario({ enviar, aoSucesso }) {
           <BuscaEndereco rotulo="Destino" valor={destino} aoSelecionar={setDestino} />
         </div>
       </section>
+
+      <Secao titulo="Quando">
+        <fieldset className="flex flex-col gap-2 text-sm text-text-principal sm:col-span-2">
+          <legend className="sr-only">Quando a remoção deve acontecer</legend>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="quando"
+              checked={!form.agendada}
+              onChange={() => setForm((atual) => ({ ...atual, agendada: false }))}
+            />
+            O quanto antes
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="radio"
+              name="quando"
+              checked={form.agendada}
+              onChange={() => setForm((atual) => ({ ...atual, agendada: true }))}
+            />
+            Agendar para uma data e hora
+          </label>
+        </fieldset>
+
+        {form.agendada && (
+          <Campo rotulo="Chegada no destino" obrigatorio>
+            <input
+              type="datetime-local"
+              value={form.chegadaDestinoDesejada}
+              min={agoraParaCampo()}
+              onChange={atualizarCampo('chegadaDestinoDesejada')}
+              required
+              className={CAMPO_CLASSES}
+            />
+            <span className="text-xs font-normal text-text-secundario">
+              Hora em que o paciente precisa chegar ao destino. A regulação confirma o agendamento por e-mail.
+            </span>
+          </Campo>
+        )}
+      </Secao>
 
       {erro && <p className="rounded-lg bg-vermelho/10 px-4 py-3 text-sm font-medium text-vermelho">{erro}</p>}
       {sucesso && (

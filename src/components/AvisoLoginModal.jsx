@@ -55,8 +55,10 @@ export function AvisoLoginModal({ aviso, aoFechar }) {
                     <Link to="/profissional/remocoes" className="font-medium text-azul-petroleo hover:underline">
                       Remoção #{vaga.remocaoCodigo}
                     </Link>
-                    {vaga.dataHoraAtendimento && (
-                      <span className="ml-2 text-text-secundario">{new Date(vaga.dataHoraAtendimento).toLocaleString('pt-BR')}</span>
+                    {vaga.chegadaOrigemPrevista && (
+                      <span className="ml-2 text-text-secundario">
+                        na origem às {new Date(vaga.chegadaOrigemPrevista).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                      </span>
                     )}
                     {!vaga.disponivel && <span className="ml-2 text-vermelho">indisponível na sua grade</span>}
                   </li>
@@ -72,11 +74,22 @@ export function AvisoLoginModal({ aviso, aoFechar }) {
               <ul className="mt-4 flex flex-col gap-2">
                 {aviso.remocoes.map((remocao) => (
                   <li key={remocao.codigo} className="rounded-lg bg-bg-app px-4 py-3 text-sm">
-                    <Link to={`/remocoes/${remocao.codigo}/alocar`} className="font-medium text-azul-petroleo hover:underline">
+                    {/* Agendada: a decisão (hora na origem ou recusa) é tomada no detalhe, não na alocação. */}
+                    <Link
+                      to={remocao.chegadaDestinoDesejada ? `/remocoes/${remocao.codigo}` : `/remocoes/${remocao.codigo}/alocar`}
+                      className="font-medium text-azul-petroleo hover:underline"
+                    >
                       Remoção #{remocao.codigo}
                     </Link>
-                    {remocao.dataHoraSolicitacao && (
-                      <span className="ml-2 text-text-secundario">{new Date(remocao.dataHoraSolicitacao).toLocaleString('pt-BR')}</span>
+                    {remocao.chegadaDestinoDesejada ? (
+                      <span className="ml-2 font-medium text-vermelho">
+                        agendada: chegada no destino{' '}
+                        {new Date(remocao.chegadaDestinoDesejada).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                      </span>
+                    ) : (
+                      remocao.dataHoraSolicitacao && (
+                        <span className="ml-2 text-text-secundario">{new Date(remocao.dataHoraSolicitacao).toLocaleString('pt-BR')}</span>
+                      )
                     )}
                   </li>
                 ))}
