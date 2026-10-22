@@ -4,6 +4,7 @@ import { requisitar } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { CAMPO_CLASSES } from './CampoFormulario.jsx';
 import { TODOS_STATUS_REMOCAO, rotuloStatus } from '../constants/statusRemocao.js';
+import { formatarAgendamento } from './agendamentoFormato.js';
 
 // props:
 // - comFiltros: mostra campo de busca por status acima da tabela
@@ -95,13 +96,14 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
               <th className="px-5 py-3 font-bold">Código</th>
               <th className="px-5 py-3 font-bold">Status</th>
               <th className="px-5 py-3 font-bold">Solicitada em</th>
+              <th className="px-5 py-3 font-bold">Chegada no destino</th>
               <th className="px-5 py-3 font-bold">Ações</th>
             </tr>
           </thead>
           <tbody>
             {!carregando && remocoes.length === 0 && (
               <tr className="linha-vazia">
-                <td colSpan={4} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
+                <td colSpan={5} className="px-5 py-8 text-center text-sm font-medium text-text-secundario">
                   Nenhuma remoção encontrada.
                 </td>
               </tr>
@@ -112,6 +114,13 @@ export function TabelaRemocoes({ comFiltros = true, comFiltroPeriodo = false, mo
                 <td data-rotulo="Status" className="px-5 py-3 text-text-secundario">{rotuloStatus(remocao.status)}</td>
                 <td data-rotulo="Solicitada em" className="px-5 py-3 text-text-secundario">
                   {remocao.dataHoraSolicitacao ? new Date(remocao.dataHoraSolicitacao).toLocaleString('pt-BR') : '—'}
+                </td>
+                <td data-rotulo="Chegada no destino" className="px-5 py-3 text-text-secundario">
+                  {remocao.chegadaDestinoDesejada ? (
+                    <span className="font-medium text-text-principal">{formatarAgendamento(remocao.chegadaDestinoDesejada)}</span>
+                  ) : (
+                    'O quanto antes'
+                  )}
                 </td>
                 <td className="celula-acoes px-5 py-3">
                   <div className="flex gap-3">

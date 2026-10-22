@@ -12,6 +12,75 @@ import {
 } from '../constants/statusRemocao.js';
 import { Campo, CAMPO_CLASSES } from '../components/CampoFormulario.jsx';
 import { HistoricoAcoes } from '../components/HistoricoAcoes.jsx';
+import { deCampoDataHora, formatarAgendamento, paraCampoDataHora } from '../components/agendamentoFormato.js';
+
+// Até a equipe sair da base, a regulação ainda pode combinar ou ajustar os horários.
+const STATUS_COM_AGENDAMENTO_EDITAVEL = ['Solicitada', 'Em_Processamento', 'Aceita'];
+
+// Aceitar uma remoção agendada é definir a hora em que a equipe estará na origem; o cliente pode ter
+// pedido só a chegada no destino. Recusar é o "Cancelar remoção" com motivo Sem viatura/Sem equipe.
+function FormularioAgendamento({ remocao, token, aoSalvar }) {
+  const [chegadaOrigem, setChegadaOrigem] = useState(paraCampoDataHora(remocao.chegadaOrigemPrevista));
+  const [chegadaDestino, setChegadaDestino] = useState(paraCampoDataHora(remocao.chegadaDestinoDesejada));
+  const [erro, setErro] = useState(null);
+  const [salvando, setSalvando] = useState(false);
+
+  async function aoSubmeter(evento) {
+    evento.preventDefault();
+    setErro(null);
+    setSalvando(true);
+    try {
+      await requisitar(`/remocao/${remocao.codigo}`, {
+        method: 'PUT',
+        token,
+        body: { chegadaOrigemPrevista: deCampoDataHora(chegadaOrigem), chegadaDestinoDesejada: deCampoDataHora(chegadaDestino) },
+      });
+      aoSalvar();
+    } catch (excecao) {
+      setErro(excecao.cause || excecao.message);
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <form onSubmit={aoSubmeter} className="flex flex-col gap-4 border-t border-text-secundario/15 pt-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Campo rotulo="Chegada prevista na origem" obrigatorio={Boolean(chegadaDestino)}>
+          <input
+            type="datetime-local"
+            value={chegadaOrigem}
+            max={chegadaDestino || undefined}
+            onChange={(e) => setChegadaOrigem(e.target.value)}
+            required={Boolean(chegadaDestino)}
+            className={CAMPO_CLASSES}
+          />
+        </Campo>
+        <Campo rotulo="Chegada no destino">
+          <input
+            type="datetime-local"
+            value={chegadaDestino}
+            min={chegadaOrigem || undefined}
+            onChange={(e) => setChegadaDestino(e.target.value)}
+            className={CAMPO_CLASSES}
+          />
+        </Campo>
+      </div>
+      <p className="text-xs text-text-secundario">
+        A equipe escalada recebe um lembrete por e-mail 1 hora antes de cada horário. Mudar um horário já lembrado gera um novo
+        lembrete.
+      </p>
+      {erro && <p className="text-sm font-medium text-vermelho">{erro}</p>}
+      <button
+        type="submit"
+        disabled={salvando}
+        className="self-start rounded-lg bg-chumbo px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-chumbo/90 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {salvando ? 'Salvando...' : 'Salvar horários'}
+      </button>
+    </form>
+  );
+}
 
 function LinhaDetalhe({ rotulo, valor }) {
   return (
@@ -194,8 +263,11 @@ export function DetalharRemocao() {
 
   const podeAlocar = sessao.usuario.papeis.some((papel) => ['Admin', 'Regulador'].includes(papel));
   const podeVerValor = sessao.usuario.papeis.some((papel) => ['Admin', 'Regulador'].includes(papel));
+  const agendada = Boolean(remocao.chegadaDestinoDesejada);
+  const faltaHoraOrigem = agendada && !remocao.chegadaOrigemPrevista;
+  const podeEditarAgendamento = podeAlocar && STATUS_COM_AGENDAMENTO_EDITAVEL.includes(remocao.status);
   const podeFinalizarAlocacao =
-    podeAlocar && remocao.status === 'Solicitada' && Boolean(remocao.ambulancia) && Boolean(remocao.equipe?.length);
+    podeAlocar && remocao.status === 'Solicitada' && Boolean(remocao.ambulancia) && Boolean(remocao.equipe?.length) && !faltaHoraOrigem;
   const podeAvancarStatus = podeAlocar && remocao.status !== 'Solicitada' && remocao.status !== 'Paga' && remocao.status !== 'Cancelada';
   const ehClienteDono = sessao.usuario.papeis.includes('Cliente') && sessao.usuario.cliente?.codigo === remocao.cliente?.codigo;
   const podeCancelar = (podeAlocar || ehClienteDono) && !STATUS_SEM_CANCELAMENTO.includes(remocao.status);
@@ -236,6 +308,31 @@ export function DetalharRemocao() {
           <LinhaDetalhe rotulo="Origem" valor={descreverLocal(remocao.origem)} />
           <LinhaDetalhe rotulo="Destino" valor={descreverLocal(remocao.destino)} />
         </div>
+      </section>
+
+      <section className="flex flex-col gap-5 rounded-xl bg-bg-card p-6 shadow-sm">
+        <div>
+          <h2 className="text-sm font-bold text-chumbo uppercase tracking-wide">Agendamento</h2>
+          {podeAlocar && remocao.status === 'Solicitada' && faltaHoraOrigem && (
+            <p className="mt-2 rounded-lg bg-azul-petroleo/10 px-4 py-3 text-sm font-medium text-azul-petroleo">
+              Remoção agendada aguardando a decisão da regulação. Para aceitar, defina a chegada prevista na origem e siga com a
+              alocação. Para recusar, use "Cancelar remoção" com o motivo "Sem ambulância disponível" ou "Sem equipe disponível" —
+              o cliente é avisado por e-mail.
+            </p>
+          )}
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <LinhaDetalhe rotulo="Chegada no destino" valor={agendada ? formatarAgendamento(remocao.chegadaDestinoDesejada) : 'O quanto antes'} />
+          <LinhaDetalhe rotulo="Chegada prevista na origem" valor={formatarAgendamento(remocao.chegadaOrigemPrevista) || 'A definir'} />
+        </div>
+        {podeEditarAgendamento && (
+          <FormularioAgendamento
+            key={`${remocao.chegadaOrigemPrevista}-${remocao.chegadaDestinoDesejada}`}
+            remocao={remocao}
+            token={sessao.token}
+            aoSalvar={recarregar}
+          />
+        )}
       </section>
 
       <section className="rounded-xl bg-bg-card p-6 shadow-sm">
@@ -336,7 +433,7 @@ export function DetalharRemocao() {
             <h2 className="text-sm font-bold text-chumbo uppercase tracking-wide">Finalizar alocação</h2>
             <p className="mt-1 text-sm text-text-secundario">
               Marca a remoção como em andamento e avisa o cliente por e-mail que o atendimento começou. Exige ambulância e
-              equipe já alocadas.
+              equipe já alocadas{agendada ? ' e, por ser agendada, a chegada prevista na origem' : ''}.
             </p>
           </div>
 
